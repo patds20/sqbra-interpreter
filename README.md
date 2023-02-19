@@ -39,10 +39,10 @@
 <p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
 <p><b>Example:</b></p>
 <p>funct printHello [</br>
-&nbsp;&nbsp;&nbsp;while (var1 != 0) [</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ["Hello!"]</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set var1 (var1-2)</br>
-&nbsp;&nbsp;&nbsp;]</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (var1 != 0) [</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ["Hello!"]</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set var1 (var1-2)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</br>
 ]
 </p>
 
