@@ -2,8 +2,7 @@
 <h1>SQBRA Interpreter <i>(Version 1.3.1)</i></h1>
 <h2>Interpreter for the SquareBracket Programming Language</h2>
 <p>SquareBracket is a <b>simple programming language</b> designed to make the execution of small algorithms and math scripts easy. It has a syntax that is <b>easy to learn</b> and uses intuitive commands to perform mathematical operations, create variables, and control program flow. It is designed to be extensible and many <b>more functions will be added in future versions</b> to make it more powerful. With its focus on simplicity and ease of use, SquareBracket is a good choice for anyone looking to quickly and easily create and execute mathematical algorithms and scripts. Small bugs may still occur. The interpreter is lightweight and completely <b>implemented in C++</b>.</p>
-</br>
-<h3>Command:</h3>
+<h3>Commands:</h3>
 <ul>
   <li><b><span style="color:blue">cvar</span> &lt;variable_name&gt; &lt;initial_value&gt;</b>: Creates a new variable with the given name and assigns it the given initial value.</li>
   <li><b><span style="color:blue">mvar</span> &lt;variable1&gt; &lt;variable2&gt; ... &lt;variableN&gt; &lt;initial_value&gt;</b>: Creates multiple variables at once with the same initial value.</li>
@@ -19,10 +18,10 @@
   <li><b><span style="color:blue">acos</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse cosine of the source and assigns the result to the target.</li>
   <li><b><span style="color:blue">atan</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse tangent of the source and assigns the result to the target.</li>
   <li><b><span style="color:blue">sec</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the secans of the source and assigns the result to the target.</li>
-  <li><b> <span style="color:blue">loop</span> n do [ ... ]</b>: loop n times and execute the code in the indented block. The variable n is decremented each time. Example: loop 10 do [set x (x + 1)].</li>
-  <li><b><span style="color:blue">sloop</span> n do [ ... ]</b>: same as loop, but changes to the loop variable inside the code block do not affect the loop. Example: sloop 10 do [set x (x + 1)].</li>
+  <li><b> <span style="color:blue">loop</span> n do [ ... ]</b>: loop n times and execute the code in the indented block. The variable n is decremented each time.</li>
+  <li><b><span style="color:blue">sloop</span> n do [ ... ]</b>: same as loop, but changes to the loop variable inside the code block do not affect the loop.</li>
   <li><b><span style="color:blue">if</span> (statement) [ ... ]</b>: execute the code in the indented block if the statement is true. The statement can use the following operators: == (equal), != (not equal), >= (greater or equal), <= (smaller or equal), >> (greater), << (smaller). Example: if (x == 0) [set y 1].</li>
-  <li><b><span style="color:blue">while</span> (statement) [ ... ]</b>: execute the code in the indented block as long as the statement is true. The statement has the same syntax as in the if command. Example: while (x < 10) [set x (x + 1)].</li>
+  <li><b><span style="color:blue">while</span> (statement) [ ... ]</b>: execute the code in the indented block as long as the statement is true. The statement has the same syntax as in the if command.</li>
   <li><b><span style="color:blue">print</span> ["string"]</b>: print a string and break a new line. Example: print ["Hello, world!"].</li>
   <li><b><span style="color:blue">printb</span> ["string"]</b>: same as print, but does not break a new line. Example: printb ["Hello, world!"].</li>
   <li><b><span style="color:blue">printv</span> variable</b>: print the value of a variable and does not break a new line. Example: printv x.</li>
