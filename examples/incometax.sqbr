@@ -1,0 +1,39 @@
+# calculate the income tax based on German regulations
+mvar income tax 0
+set income (args[0]*12)
+
+funct calculateIncomeTax [
+    if (income << 0) [
+        print ["Income cannot be negative!"]
+        exit
+    ]
+    if (income <= 9744) [
+        set tax 0
+        call printRes
+    ]
+    if (income <= 14753) [
+        set tax ((income - 9744) * 0.15)
+        call printRes
+    ]
+    if (income <= 57918) [
+        set tax ((income - 14753) * 0.2397 + 921)
+        call printRes
+    ]
+    if (income <= 274612) [
+        set tax ((income - 57918) * 0.42 + 8621.72)
+        call printRes
+    ]
+    if (income >> 274612) [
+        set tax ((income - 274612) * 0.45 + 16437.32)
+        call printRes
+    ]
+]
+
+funct printRes [
+    round tax 0.001
+    printv tax
+    newl
+    exit
+]
+
+call calculateIncomeTax

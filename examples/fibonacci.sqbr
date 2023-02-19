@@ -1,0 +1,23 @@
+mvar z1 z2 res n 1
+set z1 0
+
+funct fibonacci [
+    set res (z1+z2)
+    set z1 z2
+    set z2 res
+]
+
+funct printres [
+    printb ["Iteration: "]
+    printv n
+    printb [" -- FIB: "]
+    printv res
+    newl
+]
+
+cvar iter 1400
+loop iter do [
+    call fibonacci
+    call printres
+    inc n
+]

@@ -1,0 +1,31 @@
+mvar denominator pi addto n 1
+
+funct leibniz [
+    set denominator 1
+    set addto 1
+    set pi 0
+    call printinfo
+    loop n do [
+        set denominator (denominator + 4)
+        set addto (addto - (1/(denominator-2)) + (1/(denominator)))
+    ]
+    call printresult
+]
+
+funct printinfo [
+    printb ["Iterations: "]
+    printv n
+]
+
+funct printresult [
+    set pi (addto * 4)
+    printb[" Result: "]
+    printv pi
+    newl
+]
+
+cvar iter 10
+loop iter do [
+    set n (1000*iter)
+    call leibniz
+]

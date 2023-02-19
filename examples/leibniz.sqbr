@@ -1,0 +1,12 @@
+mvar denominator pi addto n 1
+
+set n args[0]
+
+loop n do [
+    set denominator (denominator + 4)
+    set addto (addto - (1/(denominator-2)) + (1/(denominator)))
+]
+
+set pi (addto * 4)
+printv pi
+newl
