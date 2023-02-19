@@ -39,7 +39,7 @@
 <p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
 <p><b>Example:</b></p>
 <p>while (var1 != 0) [</br>
-   print ["Hello!"]</br>
+&nbsp;&nbsp;&nbsp;print ["Hello!"]</br>
 ]</br>
 </p>
 
