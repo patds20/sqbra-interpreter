@@ -1,3 +1,5 @@
+# Example: Leibniz with Functions
+
 mvar denominator pi addto n 1
 
 funct leibniz [
