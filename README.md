@@ -17,7 +17,7 @@
   <li><b><span style="color:blue">asin</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse sine of the source and assigns the result to the target.</li>
   <li><b><span style="color:blue">acos</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse cosine of the source and assigns the result to the target.</li>
   <li><b><span style="color:blue">atan</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse tangent of the source and assigns the result to the target.</li>
-  <li><b><span style="color:blue">sec</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the secans of the source and assigns the result to the target.</li>
+  <li><b><span style="color:blue">sec</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the secant of the source and assigns the result to the target.</li>
   <li><b> <span style="color:blue">loop</span> n do [ ... ]</b>: loop n times and execute the code in the indented block. The variable n is decremented each time.</li>
   <li><b><span style="color:blue">sloop</span> n do [ ... ]</b>: same as loop, but changes to the loop variable inside the code block do not affect the loop.</li>
   <li><b><span style="color:blue">if</span> (statement) [ ... ]</b>: execute the code in the indented block if the statement is true. The statement can use the following operators: == (equal), != (not equal), >= (greater or equal), <= (smaller or equal), >> (greater), << (smaller). Example: if (x == 0) [set y 1].</li>
@@ -34,3 +34,15 @@
   <li><b><span style="color:blue">ceil</span> x</b>: round up the number x. Example: ceil 3.14.</li>
   <li><b><span style="color:blue">round</span> x</b> precision: round the number x to the given number of precision digits. Example: round 3.14159 3.</li>
   </ul>
+
+<h3>Syntax:</h3>
+<p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
+<p><b>Example:</b></p>
+<p>while (var1 != 0) [</br>
+   print ["Hello!"]</br>
+]</br>
+</p>
+
+<h3>Data structures</h3>
+<p>In SquareBracket, the only data structures available are doubles and lists of doubles. You can create a new list with the "clist" command followed by the name and the length of the list. You can access elements of the list by indexing the list with square brackets, for example: "my_list[index]". You can also use the "getl" command to get the length of a list and assign it to a variable.</p>
+  
