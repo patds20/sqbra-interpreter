@@ -1,6 +1,10 @@
+# Example: Fibonacci
+
+# create multiple variables (mvar)
 mvar z1 z2 res n 1
 set z1 0
 
+# define functions
 funct fibonacci [
     set res (z1+z2)
     set z1 z2
@@ -15,6 +19,7 @@ funct printres [
     newl
 ]
 
+# create single variable (cvar) and iterate 1400 times
 cvar iter 1400
 loop iter do [
     call fibonacci
