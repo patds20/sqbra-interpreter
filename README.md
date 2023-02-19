@@ -19,4 +19,19 @@
   <li><b><span style="color:blue">acos</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse cosine of the source and assigns the result to the target.</li>
   <li><b><span style="color:blue">atan</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the inverse tangent of the source and assigns the result to the target.</li>
   <li><b><span style="color:blue">sec</span> &lt;target&gt; &lt;source&gt;</b>: Calculates the secans of the source and assigns the result to the target.</li>
+  <li><b> <span style="color:blue">loop</span> n do [ ... ]</b>: loop n times and execute the code in the indented block. The variable n is decremented each time. Example: loop 10 do [set x (x + 1)].</li>
+  <li><b><span style="color:blue">sloop</span> n do [ ... ]</b>: same as loop, but changes to the loop variable inside the code block do not affect the loop. Example: sloop 10 do [set x (x + 1)].</li>
+  <li><b><span style="color:blue">if</span> (statement) [ ... ]</b>: execute the code in the indented block if the statement is true. The statement can use the following operators: == (equal), != (not equal), >= (greater or equal), <= (smaller or equal), >> (greater), << (smaller). Example: if (x == 0) [set y 1].</li>
+  <li><b><span style="color:blue">while</span> (statement) [ ... ]</b>: execute the code in the indented block as long as the statement is true. The statement has the same syntax as in the if command. Example: while (x < 10) [set x (x + 1)].</li>
+  <li><b><span style="color:blue">print</span> ["string"]</b>: print a string and break a new line. Example: print ["Hello, world!"].</li>
+  <li><b><span style="color:blue">printb</span> ["string"]</b>: same as print, but does not break a new line. Example: printb ["Hello, world!"].</li>
+  <li><b><span style="color:blue">printv</span> variable</b>: print the value of a variable and does not break a new line. Example: printv x.</li>
+  <li><b><span style="color:blue">newl</span></b>: break a new line. Example: newl.</li>
+  <li><b><span style="color:blue">input</span> variable ["string"]</b>: ask for user input and save it in the variable. The optional string is used as a prompt. Example: input x ["Please enter a number: "].</li>
+  <li><b><span style="color:blue">clist</span> name length</b>: create a list with the given name and length. Example: clist my_list 5.</li>
+  <li><b><span style="color:blue">getl</span> variable name</b>: get the length of a list and save it in the variable. Example: getl len my_list.</li>
+  <li><b><span style="color:blue">list</span>[index]</b>: access an element of a list. Example: set my_list[0] 42.</li>
+  <li><b><span style="color:blue">floor</span> x</b>: round down the number x. Example: floor 3.14.</li>
+  <li><b><span style="color:blue">ceil</span> x</b>: round up the number x. Example: ceil 3.14.</li>
+  <li><b><span style="color:blue">round</span> x</b> precision: round the number x to the given number of precision digits. Example: round 3.14159 3.</li>
   </ul>
