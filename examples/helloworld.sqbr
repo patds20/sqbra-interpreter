@@ -1,0 +1,9 @@
+# Example: Hello World
+
+funct printhello [
+   print ["Hello World!"]
+]
+
+call printhello
+
+# Output: Hello World!
