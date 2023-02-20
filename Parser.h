@@ -504,7 +504,7 @@ void printTree(Node* root, int level) {
 } // print the parsed tree
 
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 1.3) -- © 2023 Patrick De Smet ############" << endl << endl;
+    cout << "SquareBracket Parser (Version 1.3) -- © 2023 Patrick De Smet" << endl << endl;
     printTree(root, 0);
     cout << endl;
 } // print logo and the parsed tree starting from the root
