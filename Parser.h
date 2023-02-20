@@ -14,7 +14,7 @@
 #include <iostream>
 #include "Tokens.h"
 
-using namespace std; // i am lazy and don't want to write std:: a thousand times
+using namespace std;
 
 int rLine = -1; // this variable tells the parser where to continue after an indented block
 
