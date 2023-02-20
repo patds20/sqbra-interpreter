@@ -6,7 +6,7 @@
  *  RECURSER.H
  *  This file contains the execute function for the SquareBracket language.
  *  The function executes the parsed tree recursively and calls the specific command functions.
- *  All rights belong to Patrick De Smet (Copyright 2023).
+ *  Copyright (c) 2023, Patrick De Smet
  */
 
 #include <iostream>
