@@ -112,7 +112,7 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
     int lcount = 1;
     error = false;
     if(pl) {
-        cout << "SquareBracket Syntax Check (Version 1.3) -- © 2023 Patrick De Smet ############" << endl << endl;
+        cout << "SquareBracket Syntax Check (Version 1.3) *******" << endl << endl;
     }
     for(auto &line : tokens){
         string token = line[0];
