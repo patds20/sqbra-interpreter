@@ -5,7 +5,7 @@
 /*
  *  TOKENS.H
  *  This file defines the Node structure for tree and all the possible commands.
- *  All rights belong to Patrick De Smet (Copyright 2023).
+ *  Copyright (c) 2023, Patrick De Smet
  */
 
 #include <string>
