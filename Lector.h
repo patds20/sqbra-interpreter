@@ -147,10 +147,10 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
         lcount += 1;
     }
     if(error){
-        cout << "Result: Errors were detected. **********************************" << endl;
+        cout << "Result: Errors were detected." << endl;
         exit(0);
     }else if(!error && pl){
-        cout << "Result: No errors were detected. **********************************" << endl;
+        cout << "Result: No errors were detected." << endl;
         exit(0);
     }
 }
