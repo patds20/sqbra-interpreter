@@ -6,7 +6,7 @@
  *  PARSER.H
  *  This file contains the parser and print functions for the SquareBracket language.
  *  The parser analyzes the tokens and creates a distinct tree which can be executed in the next step.
- *  All rights belong to Patrick De Smet (Copyright 2023).
+ *  Copyright (c) 2023, Patrick De Smet
  */
 
 #include <string>
