@@ -71,7 +71,7 @@ void checkSVSyntax(vector<string> line, int lcount){
     if(line[0] == "round" && line.size() != 3){
         cout << "False 'round' command: line <" << lcount << "> - correct usage: round <var> precision" << endl;
         error = true;
-    }else if(line.size() != 2){
+    }else if(line[0] != "round" && line.size() != 2){
         cout << "More arguments than required: <" << lcount << "> - correct usage: <command> <var>" << endl;
         error = true;
     }
