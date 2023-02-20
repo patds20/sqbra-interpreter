@@ -6,7 +6,7 @@
  *  LEXER.H
  *  This file contains the lexer and repair (fix) functions for the SquareBracket language.
  *  The lexer reads the raw code, tokenizes it and repairs small mistakes.
- *  All rights belong to Patrick De Smet (Copyright 2023).
+ *  Copyright (c) 2023, Patrick De Smet
  */
 
 #include <vector>
