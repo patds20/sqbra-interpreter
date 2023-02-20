@@ -4,8 +4,8 @@
 /*
  *  LECTOR.H
  *  This file contains the lector function for the SquareBracket language.
- *  The lector checks the syntax of the tokens and prints mistakes.
- *  All rights belong to Patrick De Smet (Copyright 2023).
+ *  The lector checks the syntax of the tokens and shows potential errors.
+ *  Copyright (c) 2023, Patrick De Smet
  */
 
 #include <vector>
