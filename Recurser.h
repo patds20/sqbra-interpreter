@@ -328,6 +328,19 @@ void command_floor(const string& varname){
     }
 }
 
+
+void command_abs(const string& varname){
+    if (varname.find('[') != std::string::npos) { // set array instead of variable
+        std::string varAsString = std::to_string(abs(getListValue(varname)));
+        setListValue(varname, varAsString);
+    }else if (vars.find(varname) == vars.end()) {
+        cerr << "Error: variable or list entry (" << varname << ") does not exist" << endl;
+        exit(0); // terminate program
+    } else {
+        vars[varname] = abs(vars[varname]); // change the current entry
+    }
+}
+
 void command_round(const string& varname, const string& precision){
     double prec = parseValue(precision);
     if (varname.find('[') != std::string::npos) { // set array instead of variable
@@ -538,6 +551,8 @@ void executeCommand(Node* statement){
         command_ceil(statement->children[0].value);
     }else if(statement->type == FLOOR) {
         command_floor(statement->children[0].value);
+    }else if(statement->type == ABS) {
+        command_abs(statement->children[0].value);
     }else if(statement->type == SIN) {
         command_trig(statement->children[0].value,statement->children[1].value,SIN);
     }else if(statement->type == COS) {
@@ -576,7 +591,7 @@ int execute(Node* node){
                 break;
             }
         }
-    }else if(node->type == CVAR || node->type == MVAR || node->type == SET || node->type == INC || node->type == DEC || node->type == PRINT || node->type == PRINTB || node->type == PRINTV || node->type == CLIST || node->type == INPUT || node->type == CEIL || node->type == FLOOR || node->type == ROUND || node->type == NEWL || node->type == LOG || node->type == EXP || node->type == SIN || node->type == COS || node->type == CSC || node->type == SEC || node->type == TAN || node->type == COT || node->type == ASIN || node->type == ACOS || node->type == ATAN || node->type == GETL || node->type == XROOT  || node->type == FUNCT){
+    }else if(node->type == CVAR || node->type == MVAR || node->type == SET || node->type == INC || node->type == DEC || node->type == PRINT || node->type == PRINTB || node->type == PRINTV || node->type == CLIST || node->type == INPUT || node->type == CEIL || node->type == FLOOR || node->type == ROUND || node->type == NEWL || node->type == LOG || node->type == EXP || node->type == SIN || node->type == COS || node->type == CSC || node->type == SEC || node->type == TAN || node->type == COT || node->type == ASIN || node->type == ACOS || node->type == ATAN || node->type == GETL || node->type == XROOT  || node->type == FUNCT || node->type == ABS){
         executeCommand(node);
     }else if(node->type == LOOP) {
         while (vars[node->children[0].value] > 0) {
