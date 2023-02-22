@@ -2,6 +2,41 @@
 <h1>SQBRA Interpreter <i>(Version 1.3.2)</i></h1>
 <h2>Interpreter for the SquareBracket Programming Language</h2>
 <p>SquareBracket is a <b>simple programming language</b> designed to make the execution of small algorithms and math scripts easy. It has a syntax that is <b>easy to learn</b> and intuitive commands to perform mathematical operations, create variables, and control program flow. It is designed to be extensible and many <b>more functions will be added in future versions</b> to make it more powerful. With its focus on simplicity and ease of use, SquareBracket is a good choice for anyone looking to quickly and easily create and execute mathematical algorithms and scripts. Small bugs may still occur. The interpreter is lightweight and completely <b>implemented in C++</b>.</p>
+<h2>Usage</h2>
+<p>The SquareBracket Interpreter can be used with the following syntax:</p>
+<code>sqbra.exe [flags] <path to the code file> <input values></code>
+
+<p>Here's what each part of the syntax means:</p>
+<ul>
+  <li><code>sqbra.exe</code>: The name of the interpreter executable.</li>
+  <li><code>[flags]</code>: Optional flags that can be used to modify the behavior of the interpreter. See the "Flags" section below for more information.</li>
+  <li><code>&lt;path to the code file&gt;</code>: The path to the code file that contains your SquareBracket code.</li>
+  <li><code>&lt;input values&gt;</code>: Optional input values that can be passed to the SquareBracket program. These values will be available in the <code>args</code> list when the program runs.</li>
+</ul>
+<h2>Flags</h2>
+<p>The following flags are available:</p>
+<ul>
+  <li><code>-v</code>: Outputs the current version of the interpreter.</li>
+  <li><code>-c</code>: Only checks the code for syntax errors.</li>
+  <li><code>-pt</code>: Checks for syntax errors and prints the parsed tree.</li>
+  <li><code>-I</code>: Indicates that input values are given and writes them to the <code>args</code> list.</li>
+</ul>
+<h2>Examples</h2>
+<p>Here are some examples of how to use the SquareBracket Interpreter:</p>
+<h3>Example 1: Running a SquareBracket program with input values</h3>
+<p>If you have a SquareBracket program saved in a file called <code>program.sqb</code> and you want to pass the input values <code>1</code> and <code>2</code> to the program, you can use the following command:</p>
+<code>sqbra.exe -I program.sqb 1 2</code>
+
+<p>This will run the <code>program.sqb</code> file with the input values <code>1</code> and <code>2</code> passed in as arguments.</p>
+<h3>Example 2: Checking a SquareBracket program for syntax errors</h3>
+<p>If you want to check a SquareBracket program called <code>program.sqb</code> for syntax errors, you can use the following command:</p>
+<code>sqbra.exe -c program.sqb</code>
+
+<p>This will check the <code>program.sqb</code> file for syntax errors and output any errors that are found.</p>
+<h3>Example 3: Printing the parsed tree of a SquareBracket program</h3>
+<p>If you want to check a SquareBracket program called <code>program.sqb</code> for syntax errors and print out the parsed tree, you can use the following command:</p>
+<code>sqbra.exe -pt program.sqb</code>
+<p>This will check the <code>program.sqb</code> file for syntax errors, print out the parsed tree, and output any errors that are found.</p>
 <h2>Syntax of the Language:</h2>
 <ul>
   <li><b><span style="color:blue">cvar</span> &lt;variable_name&gt; &lt;initial_value&gt;</b>: Creates a new variable with the given name and assigns it the given initial value.</li>
