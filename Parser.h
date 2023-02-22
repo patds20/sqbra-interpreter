@@ -187,6 +187,11 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             tmpNod1.type = VARIABLE;
             tmpNod1.value = line[1];
             child.children.push_back(tmpNod1);
+        } else if (value == "abs") {
+            type = ABS;
+            tmpNod1.type = VARIABLE;
+            tmpNod1.value = line[1];
+            child.children.push_back(tmpNod1);
         } else if (value == "round") {
             type = ROUND;
             tmpNod1.type = VARIABLE;
