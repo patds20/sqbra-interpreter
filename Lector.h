@@ -122,7 +122,7 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
             checkFlowSyntax(line, lcount);
         }else if(token == "cvar" || token == "mvar" || token == "clist" || token == "set" || token == "getl"){
             checkVarSyntax(line, lcount);
-        }else if(token == "inc" || token == "dec" || token == "ceil" || token == "floor" || token == "round"){
+        }else if(token == "inc" || token == "dec" || token == "ceil" || token == "floor" || token == "round" || token == "abs"){
             checkSVSyntax(line, lcount);
         }else if(token == "sin" || token == "cos" || token == "tan" || token == "sec" || token == "csc" || token == "cot" || token == "asin" || token == "acos" || token == "atan") {
             checkTrigSyntax(line, lcount);
