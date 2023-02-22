@@ -36,8 +36,7 @@
   </ul>
 <p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
 <p><b>Example:</b></p>
-<code>
-funct printHello [
+<code>funct printHello [
     while (var1 != 0) [
         print ["Hello!"]
         set var1 (var1-2)
