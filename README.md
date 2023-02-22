@@ -36,11 +36,12 @@
   </ul>
 <p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
 <p><b>Example:</b></p>
-<code>funct printHello [
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (var1 != 0) [
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ["Hello!"]
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set var1 (var1-2)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
+<code>
+funct printHello [
+    while (var1 != 0) [
+        print ["Hello!"]
+        set var1 (var1-2)
+    ]
 ]
 </code>
 
