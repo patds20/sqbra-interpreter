@@ -12,7 +12,7 @@
   <li><code>&lt;path to the code file&gt;</code>: The path to the code file that contains your code.</li>
   <li><code>&lt;input values&gt;</code>: Optional input values that can be passed to the program. These values will be available in the <code>args</code> list when the program runs.</li>
 </ul>
-<h2>Flags</h2>
+<h3>Flags</h3>
 <p>The following flags are available:</p>
 <ul>
   <li><code>-v</code>: Outputs the current version of the interpreter.</li>
@@ -20,7 +20,7 @@
   <li><code>-pt</code>: Checks for syntax errors and prints the parsed tree.</li>
   <li><code>-I</code>: Indicates that input values are given and writes them to the <code>args</code> list.</li>
 </ul>
-<h2>Examples</h2>
+<h3>Examples</h3>
 <p>Here are some examples of how to use the SquareBracket Interpreter:</p>
 <h3>Example 1: Running a SquareBracket program with input values</h3>
 <p>If you have a SquareBracket program saved in a file called <code>program.sqbr</code> and you want to pass the input values <code>1.32</code> and <code>54.624</code> to the program, you can use the following command:</p>
