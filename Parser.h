@@ -491,6 +491,9 @@ void printTree(Node* root, int level) {
         case CALL:
             cout << "CALL" << endl;
             break;
+        case ABS:
+            cout << "ABS" << endl;
+            break;
     }
 
     int i = 0;
