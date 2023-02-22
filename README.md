@@ -36,13 +36,13 @@
   </ul>
 <p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
 <p><b>Example:</b></p>
-<code>funct printHello [</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (var1 != 0) [</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ["Hello!"]</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set var1 (var1-2)</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]</code>
+<code>funct printHello [
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (var1 != 0) [
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ["Hello!"]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set var1 (var1-2)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
 ]
-</p>
+</code>
 
 <h2>Data Structures:</h2>
 <p>In SquareBracket, the only data structures available are doubles and lists of doubles. You can create a new list with the "clist" command followed by the name and the length of the list. You can access elements of the list by indexing the list with square brackets, for example: "my_list[index]". You can also use the "getl" command to get the length of a list and assign it to a variable.</p>
