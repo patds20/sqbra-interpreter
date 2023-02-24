@@ -31,6 +31,19 @@ int execute(Node* node);
 
 // MATH FUNCTIONS ################################################################
 
+int precedence(char op) {
+    if (op == '^')
+        return 3;
+    else if (op == '*' || op == '/' || op == '%')
+        return 2;
+    else if (op == '+' || op == '-')
+        return 1;
+    else
+        return -1;
+}
+
+double parseValue(const string& expression);
+
 double eval_op(double val1, double val2, char op) {
     switch (op) {
         case '+':
@@ -50,19 +63,6 @@ double eval_op(double val1, double val2, char op) {
     }
 }
 
-int precedence(char op) {
-    if (op == '^')
-        return 3;
-    else if (op == '*' || op == '/' || op == '%')
-        return 2;
-    else if (op == '+' || op == '-')
-        return 1;
-    else
-        return -1;
-}
-
-double parseValue(const string& expression);
-
 double evaluateExpression(string expr) {
     stack<double> values;
     stack<char> ops;
@@ -72,13 +72,13 @@ double evaluateExpression(string expr) {
         if (expr[i] == ' ')
             continue;
 
-        // Check if current character is a digit, dot, or negative sign
-        if (isdigit(expr[i]) || expr[i] == '.' || (expr[i] == '-' && (i == 0 || !isdigit(expr[i-1])))) {
+        // Check if current character is a digit or dot
+        if (isdigit(expr[i]) || expr[i] == '.') {
             string num;
-            while (i < expr.length() && (isdigit(expr[i]) || expr[i] == '.' || (expr[i] == '-' && (i == 0 || !isdigit(expr[i-1])))))
+            while (i < expr.length() && (isdigit(expr[i]) || expr[i] == '.'))
                 num += expr[i++];
             i--;
-            values.push(stod(num));
+            values.push(stof(num));
         } else if (isalpha(expr[i])) {
             string var;
             while (i < expr.length() && (isalpha(expr[i]) || expr[i] == '[' || expr[i] == ']' || isdigit(expr[i])))
@@ -99,16 +99,26 @@ double evaluateExpression(string expr) {
             }
             ops.pop();
         } else {
-            while (!ops.empty() && precedence(ops.top()) >= precedence(expr[i])) {
-                double val2 = values.top();
-                values.pop();
-                double val1 = values.top();
-                values.pop();
-                char op = ops.top();
-                ops.pop();
-                values.push(eval_op(val1, val2, op));
+            if (expr[i] == '-' && (i == 0 || expr[i-1] == '+' || expr[i-1] == '-' || expr[i-1] == '*' || expr[i-1] == '/' || expr[i-1] == '%' || expr[i-1] == '^')) {
+                string num;
+                num += '-';
+                i++;
+                while (i < expr.length() && (isdigit(expr[i]) || expr[i] == '.'))
+                    num += expr[i++];
+                i--;
+                values.push(stof(num));
+            } else {
+                while (!ops.empty() && precedence(ops.top()) >= precedence(expr[i])) {
+                    double val2 = values.top();
+                    values.pop();
+                    double val1 = values.top();
+                    values.pop();
+                    char op = ops.top();
+                    ops.pop();
+                    values.push(eval_op(val1, val2, op));
+                }
+                ops.push(expr[i]);
             }
-            ops.push(expr[i]);
         }
     }
 
