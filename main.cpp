@@ -42,6 +42,11 @@ string parse_inputcommand(int argc, char** argv, bool& pt, bool& c, bool& v, boo
                 print_man_page();
                 exit(0);
             }
+            else if (isdigit(argv[i][1]) && inp){
+                string as_text = argv[i];
+                double val = stod(as_text);
+                ars["args"].push_back(val);
+            }
         } else if (codepath.empty()){
             codepath = argv[i];
         } else if (inp && !codepath.empty()) {
