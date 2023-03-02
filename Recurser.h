@@ -609,10 +609,10 @@ int execute(Node* node){
             vars[(node->children[0]).value] -= 1;
         }
     }else if(node->type == SLOOP){
-        int loopc = (int)vars[node->children[0].value];
-        while(vars[node->children[0].value] > 0){
+        int loopc = (int)parseValue(node->children[0].value);
+        while(loopc > 0){
             execute(&(node->children[1]));
-            vars[(node->children[0]).value] -= 1;
+            loopc -= 1;
         }
     }else if(node->type == IF){
         if(checkStatement(node->children[0].value)){
