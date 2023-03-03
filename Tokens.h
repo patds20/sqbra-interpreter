@@ -60,7 +60,10 @@ enum TokenType {
     FUNCT,
     CALL,
     XROOT,
-    ABS
+    ABS,
+    PUSH,
+    POP,
+    CHSL
 }; // the type of data (type of command, expression, string, ...)
 
 class Node {
