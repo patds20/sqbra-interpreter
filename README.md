@@ -79,11 +79,13 @@
   <li><b><span style="color:blue">getl</span> variable name</b>: get the length of a list and save it in the variable. Example: getl len mylist.</li>
   <li><b><span style="color:blue">list</span>[index]</b>: access an element of a list. Example: set my_list[0] 42.</li>
   </ul>
-  <h3>Floor / Ceil / Round</h3>
+  <h3>Basic Math Functions</h3>
   <ul>
   <li><b><span style="color:blue">floor</span> x</b>: round down the number x. Example: floor 3.14.</li>
   <li><b><span style="color:blue">ceil</span> x</b>: round up the number x. Example: ceil 3.14.</li>
   <li><b><span style="color:blue">round</span> x</b> precision: round the number x to the given number of precision digits. Example: round 3.14159 3.</li>
+  <li><b><span style="color:blue">xroot</span> var rt</b>: calculate var^(1/rt). Example: xroot 4 2 calculates the square root of 4</li>
+  <li><b><span style="color:blue">log</span> target source exp</b>: calculate the logarithm of source with exponent exp and save the result in target</li>
   </ul>
   <h3>Syntax & Structure</h3>
 <p>All commands must be in a single line. Indentation is optional but renders the code more structured and clear.</p></br>
