@@ -531,6 +531,58 @@ void command_declarefunct(const string& identifier, Node* exec_block){
     }
 }
 
+void command_poplist(const string& var, const string& listid){
+    if (ars.find(listid) == ars.end()) {
+        cerr << "Error: list <" << listid << "> does not exist" << endl;
+        exit(0); // terminate program
+    } else {
+        if (!ars[listid].empty()){
+            double pop_val = ars[listid].back();
+            if (var.find('[') != std::string::npos) { // set array instead of variable
+                setListValue(var, to_string(pop_val));
+            }else if (vars.find(var) == vars.end()) {
+                cerr << "Error: variable or list entry (" << var << ") does not exist" << endl;
+                exit(0); // terminate program
+            } else {
+                vars[var] = pop_val; // change the current entry
+            }
+            ars[listid].pop_back();
+        } else {
+            cerr << "Error: list <" << listid << "> is empty" << endl;
+            exit(0); // terminate program
+        }
+    }
+}
+
+void command_pushlist(const string& var, const string& listid){
+    if (ars.find(listid) == ars.end()) {
+        cerr << "Error: list <" << listid << "> does not exist" << endl;
+        exit(0); // terminate program
+    } else {
+        double val = parseValue(var);
+        ars[listid].push_back(val);
+    }
+}
+
+void command_chsl(const string& var, const string& listid){
+    if (ars.find(listid) == ars.end()) {
+        cerr << "Error: list <" << listid << "> does not exist" << endl;
+        exit(0); // terminate program
+    } else {
+        int new_l = (int)parseValue(var);
+        int cur_l = ars[listid].size();
+        if (cur_l > new_l) {
+            for (int dif_l = cur_l - new_l; dif_l > 0; dif_l--) {
+                ars[listid].pop_back();
+            }
+        }else if (cur_l < new_l) {
+            for (int dif_l = new_l - cur_l; dif_l > 0; dif_l--) {
+                ars[listid].push_back(0);
+            }
+        }
+    }
+}
+
 // MAIN FUNCTIONS FOR THE EXECUTION OF COMMANDS
 
 void executeCommand(Node* statement){
@@ -589,6 +641,12 @@ void executeCommand(Node* statement){
         command_log(statement->children[0].value,statement->children[1].value,statement->children[1].children[0].value);
     }else if(statement->type == FUNCT) {
         command_declarefunct(statement->children[0].value,&statement->children[1]);
+    }else if(statement->type == PUSH) {
+        command_pushlist(statement->children[0].value,statement->children[1].value);
+    }else if(statement->type == POP) {
+        command_poplist(statement->children[0].value,statement->children[1].value);
+    }else if(statement->type == CHSL) {
+        command_chsl(statement->children[1].value,statement->children[0].value);
     }else if(statement->type == NEWL) {
         cout << endl;
     }
@@ -601,7 +659,7 @@ int execute(Node* node){
                 break;
             }
         }
-    }else if(node->type == CVAR || node->type == MVAR || node->type == SET || node->type == INC || node->type == DEC || node->type == PRINT || node->type == PRINTB || node->type == PRINTV || node->type == CLIST || node->type == INPUT || node->type == CEIL || node->type == FLOOR || node->type == ROUND || node->type == NEWL || node->type == LOG || node->type == EXP || node->type == SIN || node->type == COS || node->type == CSC || node->type == SEC || node->type == TAN || node->type == COT || node->type == ASIN || node->type == ACOS || node->type == ATAN || node->type == GETL || node->type == XROOT  || node->type == FUNCT || node->type == ABS){
+    }else if(node->type == CVAR || node->type == MVAR || node->type == SET || node->type == INC || node->type == DEC || node->type == PRINT || node->type == PRINTB || node->type == PRINTV || node->type == CLIST || node->type == INPUT || node->type == CEIL || node->type == FLOOR || node->type == ROUND || node->type == NEWL || node->type == LOG || node->type == EXP || node->type == SIN || node->type == COS || node->type == CSC || node->type == SEC || node->type == TAN || node->type == COT || node->type == ASIN || node->type == ACOS || node->type == ATAN || node->type == GETL || node->type == XROOT  || node->type == FUNCT || node->type == ABS || node->type == CHSL || node->type == POP || node->type == PUSH){
         executeCommand(node);
     }else if(node->type == LOOP) {
         while (vars[node->children[0].value] > 0) {
