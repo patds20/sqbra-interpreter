@@ -319,6 +319,30 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             tmpNod2.value = line[2];
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
+        } else if (value == "push") {
+            type = PUSH;
+            tmpNod1.type = VARIABLE;
+            tmpNod1.value = line[1];
+            tmpNod2.type = LISTIDENT;
+            tmpNod2.value = line[2];
+            child.children.push_back(tmpNod1);
+            child.children.push_back(tmpNod2);
+        } else if (value == "pop") {
+            type = POP;
+            tmpNod1.type = VARIABLE;
+            tmpNod1.value = line[1];
+            tmpNod2.type = LISTIDENT;
+            tmpNod2.value = line[2];
+            child.children.push_back(tmpNod1);
+            child.children.push_back(tmpNod2);
+        } else if (value == "chsl") {
+            type = CHSL;
+            tmpNod1.type = LISTIDENT;
+            tmpNod1.value = line[1];
+            tmpNod2.type = VARIABLE;
+            tmpNod2.value = line[2];
+            child.children.push_back(tmpNod1);
+            child.children.push_back(tmpNod2);
         } else if (value == "getl") {
             type = GETL;
             tmpNod1.type = VARIABLE;
@@ -493,6 +517,15 @@ void printTree(Node* root, int level) {
             break;
         case ABS:
             cout << "ABS" << endl;
+            break;
+        case POP:
+            cout << "POP" << endl;
+            break;
+        case PUSH:
+            cout << "PUSH" << endl;
+            break;
+        case CHSL:
+            cout << "CHSL" << endl;
             break;
     }
 
