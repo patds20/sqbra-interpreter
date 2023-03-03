@@ -98,6 +98,16 @@ void checkLogSyntax(const vector<string>& line, int lcount){
     }
 }
 
+void checkListFunctionsSyntax(const vector<string>& line, int lcount){
+    if(line.size() != 3 && line[0] == "chsl") {
+        cout << "False usage: <" << lcount << "> - correct usage: <chsl> <list> <length>" << endl;
+        error = true;
+    }else if(line.size() != 3){
+        cout << "False usage: <" << lcount << "> - correct usage: <pop / push> <variable> <list>" << endl;
+        error = true;
+    }
+}
+
 void checkFunctionSyntax(vector<string> line, int lcount){
     if(line[0] == "funct" && line.size() != 3){
         cout << "False declaration of a function: line <" << lcount << "> - correct usage: funct <function_name> [" << endl;
@@ -132,6 +142,8 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
             checkSingleSyntax(line, lcount);
         }else if(token == "funct" || token == "call") {
             checkFunctionSyntax(line, lcount);
+        }else if(token == "pop" || token == "push" || token == "chsl") {
+            checkListFunctionsSyntax(line, lcount);
         }else if(token == "]") {
             if (line.size() > 1) {
                 cout << "Syntax error: line <" << lcount << "> - ']' must always be the only statement in a line"
