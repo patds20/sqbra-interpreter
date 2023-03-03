@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     path_to_code = parse_inputcommand(argc, argv, pt, c, v, inp);
 
     if (v) {
-        cout << "SquareBracket Interpreter (Version 1.3.2 / 2023)" << endl;
+        cout << "SquareBracket Interpreter (Version 1.3.3 / 2023)" << endl;
         exit(0);
     }
     // CHECK WHETHER CODE IS AVAILABLE
