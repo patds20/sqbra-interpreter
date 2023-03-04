@@ -118,6 +118,13 @@ void checkFunctionSyntax(vector<string> line, int lcount){
     }
 }
 
+void checkXROOTSyntax(const vector<string>& line, int lcount){
+    if(line.size() != 3) {
+        cout << "False usage: <" << lcount << "> - correct usage: xroot <variable> <exp>" << endl;
+        error = true;
+    }
+}
+
 void checkSyntax(vector<vector<string> > &tokens, bool pl){
     int lcount = 1;
     error = false;
@@ -140,6 +147,8 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
             checkLogSyntax(line, lcount);
         }else if(token == "exit" || token == "leave" || token == "newl") {
             checkSingleSyntax(line, lcount);
+        }else if(token == "xroot") {
+            checkXROOTSyntax(line, lcount);
         }else if(token == "funct" || token == "call") {
             checkFunctionSyntax(line, lcount);
         }else if(token == "pop" || token == "push" || token == "chsl") {
