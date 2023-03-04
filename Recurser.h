@@ -503,7 +503,7 @@ void command_xroot(const string& targetsource, const string& root){
         cerr << "Error: variable or list entry (" << targetsource << ") does not exist" << endl;
         exit(0); // terminate program
     } else {
-        vars[targetsource] = parseValue(to_string(outVal)); // change the current entry
+        vars[targetsource] = outVal; // change the current entry
     }
 }
 
