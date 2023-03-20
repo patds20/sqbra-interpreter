@@ -43,9 +43,14 @@ void checkFlowSyntax(vector<string> line, int lcount){
             cout << "False while statement: line <" << lcount << "> - correct usage: while (statement) (do) [" << endl;
             error = true;
         }
-    }else if(line[0] == "if"){
+    }else if(line[0] == "if" || line[0] == "elif"){
         if(line[line.size()-1] != "[" || (line.size() != 4 && line.size() != 3)){
-            cout << "False if statement: line <" << lcount << "> - correct usage: if (statement) (do) [" << endl;
+            cout << "False if statement: line <" << lcount << "> - correct usage: (el)if (statement) (do) [" << endl;
+            error = true;
+        }
+    }else if(line[0] == "else"){
+        if(line[line.size()-1] != "[" || (line.size() != 3 && line.size() != 2)){
+            cout << "False if statement: line <" << lcount << "> - correct usage: else (do) [" << endl;
             error = true;
         }
     }
@@ -119,8 +124,8 @@ void checkFunctionSyntax(vector<string> line, int lcount){
 }
 
 void checkXROOTSyntax(const vector<string>& line, int lcount){
-    if(line.size() != 3) {
-        cout << "False usage: <" << lcount << "> - correct usage: xroot <variable> <exp>" << endl;
+    if(line.size() != 4) {
+        cout << "False usage: <" << lcount << "> - correct usage: xroot <target> <source> <root>" << endl;
         error = true;
     }
 }
@@ -129,13 +134,13 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
     int lcount = 1;
     error = false;
     if(pl) {
-        cout << "SquareBracket Syntax Check (Version 1.3) *******" << endl << endl;
+        cout << "SquareBracket Syntax Check (Version 2.0.1 Rapid Red Panda) *******" << endl << endl;
     }
     for(auto &line : tokens){
         string token = line[0];
         if(token == "print" || token == "printb" || token == "printv" || token == "input"){
             checkPrintSyntax(line, lcount);
-        }else if(token == "loop" || token == "sloop" || token == "while" || token == "if"){
+        }else if(token == "loop" || token == "sloop" || token == "while" || token == "if" || token == "elif" || token == "else"){
             checkFlowSyntax(line, lcount);
         }else if(token == "cvar" || token == "mvar" || token == "clist" || token == "set" || token == "getl"){
             checkVarSyntax(line, lcount);
