@@ -72,6 +72,24 @@ void fix_if_syntax(std::vector<std::string> *if_strings) {
     }
 } // fix if syntax
 
+void fix_elif_syntax(std::vector<std::string> *elif_strings) {
+    if(elif_strings[0][0] != "elif"){
+        string pStr = elif_strings[0][0].substr (4);
+        elif_strings->erase(elif_strings->begin());
+        elif_strings->insert(elif_strings->begin(), pStr);
+        elif_strings->insert(elif_strings->begin(), "elif");
+    }
+} // fix elif syntax
+
+void fix_else_syntax(std::vector<std::string> *else_strings) {
+    if(else_strings[0][0] != "else"){
+        string pStr = else_strings[0][0].substr (4);
+        else_strings->erase(else_strings->begin());
+        else_strings->insert(else_strings->begin(), pStr);
+        else_strings->insert(else_strings->begin(), "else");
+    }
+} // fix else syntax
+
 void fix_printb_syntax(std::vector<std::string> *print_strings) {
     if(print_strings[0][0] != "printb"){
         string pStr = print_strings[0][0].substr (6);
@@ -108,6 +126,10 @@ void repairTokens(std::vector<std::vector<std::string> > *strings) {
             fix_printb_syntax(&vec);
         }else if(vec[0].find("print") != std::string::npos && vec[0].find("printv") == std::string::npos){
             fix_print_syntax(&vec);
+        }else if(vec[0].find("elif") != std::string::npos){
+            fix_elif_syntax(&vec);
+        }else if(vec[0].find("else") != std::string::npos){
+            fix_else_syntax(&vec);
         }else if(vec[0].find("if") != std::string::npos){
             fix_if_syntax(&vec);
         }else if(vec[0].find("while") != std::string::npos){
