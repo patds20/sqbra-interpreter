@@ -84,7 +84,7 @@
   <li><b><span style="color:blue">floor</span> x</b>: round down the number x. Example: floor 3.14.</li>
   <li><b><span style="color:blue">ceil</span> x</b>: round up the number x. Example: ceil 3.14.</li>
   <li><b><span style="color:blue">round</span> x</b> precision: round the number x to the given number of precision digits. Example: round 3.14159 3.</li>
-  <li><b><span style="color:blue">xroot</span> var rt</b>: calculate var^(1/rt). Example: xroot 4 2 calculates the square root of 4</li>
+  <li><b><span style="color:blue">xroot</span> target source rt</b>: calculate var^(1/rt). Example: xroot var1 (2+x) 2 calculates the square root of (2+x) and saves the result in var1.</li>
   <li><b><span style="color:blue">log</span> target source exp</b>: calculate the logarithm of source with exponent exp and save the result in target</li>
   </ul>
   <h3>Syntax & Structure</h3>
