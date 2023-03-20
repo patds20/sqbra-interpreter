@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include "MathCore.h"
 
 using namespace std;
 
@@ -31,6 +32,8 @@ enum TokenType {
     INC,
     DEC,
     IF,
+    ELIF,
+    ELSE,
     PRINT,
     PRINTB,
     PRINTV,
@@ -38,10 +41,9 @@ enum TokenType {
     END,
     STRING,
     VARIABLE,
-    VARIABLELIST,
-    STATEMENT,
+    VARIABLES,
     EXPRESSION,
-    VALUE,
+    VARLIST,
     EXEC,
     EXIT,
     LEAVE,
@@ -71,6 +73,7 @@ public:
     TokenType type;
     std::vector<Node> children;
     std::string value;
+    MathNode* expression;
 }; // nodes contain commands, expressions, variables, values, statements, ...
 
 #endif //SQBRA_TOKENS_H
