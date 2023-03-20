@@ -36,7 +36,7 @@ string parse_inputcommand(int argc, char** argv, bool& pt, bool& c, bool& v, boo
             }
             else if (strcmp(argv[i], "-I") == 0) {
                 inp = true;
-                ars["args"] = vector<double>();
+                ars["args"] = vector<long double>();
             }
             else if (strcmp(argv[i], "--help") == 0) {
                 print_man_page();
@@ -44,14 +44,14 @@ string parse_inputcommand(int argc, char** argv, bool& pt, bool& c, bool& v, boo
             }
             else if (isdigit(argv[i][1]) && inp){
                 string as_text = argv[i];
-                double val = stod(as_text);
+                long double val = stod(as_text);
                 ars["args"].push_back(val);
             }
         } else if (codepath.empty()){
             codepath = argv[i];
         } else if (inp && !codepath.empty()) {
             string as_text = argv[i];
-            double val = stod(as_text);
+            long double val = stod(as_text);
             ars["args"].push_back(val);
         }
     }
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     path_to_code = parse_inputcommand(argc, argv, pt, c, v, inp);
 
     if (v) {
-        cout << "SquareBracket Interpreter (Version 1.3.3 / 2023)" << endl;
+        cout << "SquareBracket Interpreter (Version 2.0.1 -- Rapid Red Panda / 2023)" << endl;
         exit(0);
     }
     // CHECK WHETHER CODE IS AVAILABLE
