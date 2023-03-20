@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include "Tokens.h"
+#include "MathCore.h"
 
 using namespace std;
 
@@ -45,21 +46,23 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             type = CVAR;
             tmpNod1.type = VARIABLE;
             tmpNod1.value = line[1];
-            tmpNod2.type = VALUE;
-            tmpNod2.value = line[2];
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.type = EXPRESSION;
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "clist") {
             type = CLIST;
             tmpNod1.type = LISTIDENT;
             tmpNod1.value = line[1];
-            tmpNod2.type = VALUE;
-            tmpNod2.value = line[2];
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.type = EXPRESSION;
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "mvar") {
             type = MVAR;
-            tmpNod1.type = VARIABLELIST;
+            tmpNod1.type = VARIABLES;
             string apStr;
             for(int i = 1; i < line.size() - 1; i++){
                 if(i < line.size() - 2){
@@ -70,22 +73,26 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
                 }
             }
             tmpNod1.value = apStr;
-            tmpNod2.type = VALUE;
-            tmpNod2.value = line[line.size() - 1];
+            MathNode* expr = mathparse(line[line.size() - 1]);
+            tmpNod2.type = EXPRESSION;
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "set") {
             type = SET;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VALUE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.type = EXPRESSION;
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "input") {
             type = INPUT;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             tmpNod2.type = STRING;
             string pStr;
             for(int i = 2; i < line.size(); i++){
@@ -100,8 +107,9 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             child.children.push_back(tmpNod2);
         } else if (value == "loop") {
             type = LOOP;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             tmpNod2.type = EXEC;
             tmpNod2.children = parseTree(tokens,  currentLine + 1).children;
             currentLine = rLine;
@@ -118,8 +126,9 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             child.children.push_back(tmpNod2);
         } else if (value == "while") {
             type = WHILE;
-            tmpNod1.type = STATEMENT;
-            tmpNod1.value = line[1];
+            MathNode* expr = mathparse(line[1]);
+            tmpNod1.type = EXPRESSION;
+            tmpNod1.expression = expr;
             tmpNod2.type = EXEC;
             tmpNod2.children = parseTree(tokens, currentLine + 1).children;
             currentLine = rLine;
@@ -127,23 +136,42 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             child.children.push_back(tmpNod2);
         } else if (value == "inc") {
             type = INC;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             child.children.push_back(tmpNod1);
         } else if (value == "dec") {
             type = DEC;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             child.children.push_back(tmpNod1);
-        } else if (value == "if") {
-            type = IF;
-            tmpNod1.type = STATEMENT;
-            tmpNod1.value = line[1];
+        } else if (value == "elif") {
+            type = ELIF;
+            MathNode* expr = mathparse(line[1]);
+            tmpNod1.type = EXPRESSION;
+            tmpNod1.expression = expr;
             tmpNod2.type = EXEC;
             tmpNod2.children = parseTree(tokens, currentLine + 1).children;
             currentLine = rLine;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
+        } else if (value == "if") {
+            type = IF;
+            MathNode* expr = mathparse(line[1]);
+            tmpNod1.type = EXPRESSION;
+            tmpNod1.expression = expr;
+            tmpNod2.type = EXEC;
+            tmpNod2.children = parseTree(tokens, currentLine + 1).children;
+            currentLine = rLine;
+            child.children.push_back(tmpNod1);
+            child.children.push_back(tmpNod2);
+        } else if (value == "else") {
+            type = ELSE;
+            tmpNod1.type = EXEC;
+            tmpNod1.children = parseTree(tokens, currentLine + 1).children;
+            currentLine = rLine;
+            child.children.push_back(tmpNod1);
         } else if (value == "print") {
             type = PRINT;
             tmpNod1.type = STRING;
@@ -174,30 +202,36 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             child.children.push_back(tmpNod1);
         } else if (value == "printv") {
             type = PRINTV;
+            MathNode* expr = mathparse(line[1]);
             tmpNod1.type = EXPRESSION;
-            tmpNod1.value = line[1];
+            tmpNod1.expression = expr;
             child.children.push_back(tmpNod1);
         } else if (value == "ceil") {
             type = CEIL;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             child.children.push_back(tmpNod1);
         } else if (value == "floor") {
             type = FLOOR;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             child.children.push_back(tmpNod1);
         } else if (value == "abs") {
             type = ABS;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             child.children.push_back(tmpNod1);
         } else if (value == "round") {
             type = ROUND;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.type = EXPRESSION;
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "newl") {
@@ -214,123 +248,148 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             return root;
         } else if (value == "log") {
             type = LOG;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.type = EXPRESSION;
+            tmpNod2.expression = expr;
             Node tmpNod3;
-            tmpNod3.value = line[3];
-            tmpNod2.children.push_back(tmpNod3);
+            MathNode* expr2 = mathparse(line[3]);
+            tmpNod3.type = EXPRESSION;
+            tmpNod3.expression = expr2;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
-        } else if (value == "exp") {
-            type = EXP;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child.children.push_back(tmpNod3);
         } else if (value == "sin") {
             type = SIN;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "cos") {
             type = COS;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "tan") {
             type = TAN;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "sec") {
             type = SEC;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "csc") {
             type = CSC;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "sec") {
             type = SEC;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "cot") {
             type = COT;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "asin") {
             type = ASIN;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "acos") {
             type = ACOS;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "atan") {
             type = ATAN;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         }else if (value == "xroot") {
             type = XROOT;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
+            Node tmpNod3;
+            MathNode* expr2 = mathparse(line[3]);
+            tmpNod3.type = EXPRESSION;
+            tmpNod3.expression = expr2;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
+            child.children.push_back(tmpNod3);
         } else if (value == "push") {
             type = PUSH;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            tmpNod1.type = EXPRESSION;
+            MathNode* expr = mathparse(line[1]);
+            tmpNod1.expression = expr;
             tmpNod2.type = LISTIDENT;
             tmpNod2.value = line[2];
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "pop") {
             type = POP;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             tmpNod2.type = LISTIDENT;
             tmpNod2.value = line[2];
             child.children.push_back(tmpNod1);
@@ -339,14 +398,16 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             type = CHSL;
             tmpNod1.type = LISTIDENT;
             tmpNod1.value = line[1];
-            tmpNod2.type = VARIABLE;
-            tmpNod2.value = line[2];
+            tmpNod2.type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2.expression = expr;
             child.children.push_back(tmpNod1);
             child.children.push_back(tmpNod2);
         } else if (value == "getl") {
             type = GETL;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1.type = VARLIST;
+            tmpNod1.expression = vrl;
             tmpNod2.type = LISTIDENT;
             tmpNod2.value = line[2];
             child.children.push_back(tmpNod1);
@@ -358,8 +419,9 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
             child.children.push_back(tmpNod1);
         } else if (value == "sloop") {
             type = SLOOP;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            MathNode* expr = mathparse(line[1]);
+            tmpNod1.type = EXPRESSION;
+            tmpNod1.expression = expr;
             tmpNod2.type = EXEC;
             tmpNod2.children = parseTree(tokens, currentLine + 1).children;
             currentLine = rLine;
@@ -374,11 +436,48 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
     return root;
 } // parse tokens and create tree
 
-void printTree(Node* root, int level) {
-    for (int i = 0; i < level; i++) {
-        cout << "  ";
+void printMathTree(MathNode* root, int level) {
+    cout << " ";
+    switch (root->type) {
+        case MathNodeType::Variable:
+            cout << "VAR <" << root->variable << ">" << endl;
+            break;
+        case MathNodeType::Constant:
+            cout << "CONST <" << root->constant << ">" << endl;
+            break;
+        case MathNodeType::Operator:
+            cout << "Operator <" << getOperatorChar(root->opt) << ">" << endl;
+            break;
+        case MathNodeType::Array:
+            cout << "ARR <" << root->variable << ">" << endl;
+            break;
     }
 
+    int i = 0;
+    if (root->left != nullptr) {
+        for (int j = 0; j < level; j++) {
+            cout << "   ";
+        }
+        if(root->type == MathNodeType::Array){
+            cout << "`--";
+        }else{
+            cout << "|--";
+        }
+        printMathTree(root->left, level + 1);
+        i++;
+    }
+    if (root->right != nullptr) {
+        for (int j = 0; j < level; j++) {
+            cout << "   ";
+        }
+        cout << "`--";
+        printMathTree(root->right, level + 1);
+        i++;
+    }
+} // print the parsed expression subtrees
+
+void printTree(Node* root, int level) {
+    cout << " ";
     switch (root->type) {
         case SET:
             cout << "SET" << endl;
@@ -404,6 +503,12 @@ void printTree(Node* root, int level) {
         case IF:
             cout << "IF" << endl;
             break;
+        case ELIF:
+            cout << "ELIF" << endl;
+            break;
+        case ELSE:
+            cout << "ELSE" << endl;
+            break;
         case PRINT:
             cout << "PRINT" << endl;
             break;
@@ -419,11 +524,16 @@ void printTree(Node* root, int level) {
         case VARIABLE:
             cout << "VARIABLE <" << root->value << ">" << endl;
             break;
-        case VARIABLELIST:
+        case VARIABLES:
             cout << "VARIABLES <" << root->value << ">" << endl;
             break;
-        case VALUE:
-            cout << "VALUE <" << root->value << ">" << endl;
+        case VARLIST:
+            cout << "VARLIST" << endl;
+            for (int j = 0; j < level; j++) {
+                cout << "   ";
+            }
+            cout << "`--";
+            printMathTree(root->expression, level+1);
             break;
         case STRING:
             cout << "STRING" << endl;
@@ -434,14 +544,16 @@ void printTree(Node* root, int level) {
         case END:
             cout << "END" << endl;
             break;
-        case STATEMENT:
-            cout << "STATEMENT <" << root->value << ">" << endl;
-            break;
         case EXEC:
             cout << "EXEC" << endl;
             break;
         case EXPRESSION:
             cout << "EXPRESSION" << endl;
+            for (int j = 0; j < level; j++) {
+                cout << "   ";
+            }
+            cout << "`--";
+            printMathTree(root->expression, level+1);
             break;
         case CLIST:
             cout << "CLIST" << endl;
@@ -532,7 +644,7 @@ void printTree(Node* root, int level) {
     int i = 0;
     for (auto& child : root->children) {
         for (int j = 0; j < level; j++) {
-            cout << "  ";
+            cout << "   ";
         }
         if (i == root->children.size() - 1) {
             cout << "`--";
@@ -545,7 +657,7 @@ void printTree(Node* root, int level) {
 } // print the parsed tree
 
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 1.3) -- © 2023 Patrick De Smet" << endl << endl;
+    cout << "SquareBracket Parser (Version 2.0.1) -- © 2023 Patrick De Smet" << endl << endl;
     printTree(root, 0);
     cout << endl;
 } // print logo and the parsed tree starting from the root
