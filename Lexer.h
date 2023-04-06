@@ -15,6 +15,8 @@
 
 using namespace std;
 
+#include <string>
+
 vector<vector<string> > lexer(const string& input) {
     vector<vector<string> > result;
     string line;
@@ -42,6 +44,9 @@ vector<vector<string> > lexer(const string& input) {
                     tokens.push_back(token);
                     token = "";
                 }
+            } else if (c == '\r') {
+                cerr << "Error: SQBRA does not accept CRLF line endings." << endl;
+                exit(0);
             } else {
                 token += c;
             }
