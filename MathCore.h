@@ -19,39 +19,68 @@
 
 using namespace std;
 
-unordered_map<string, long double> vars; // global map for all vars
-unordered_map<string, vector<long double> > ars; // global map for all arrays
+unordered_map<string, long double*> vars; // global map for all vars
+unordered_map<string, vector<long double>*> ars; // global map for all arrays
+
 
 // Operator and MathNode Types
 enum class MathNodeType { Constant, Variable, Array, Operator };
-enum class MathOperatorType { PLUS, MINUS, MULT, DIV, MOD, EXP, AND, OR, EQ, LARGER, LESS, NOTSET};
+enum class MathOperatorType { PLUS, MINUS, MULT, DIV, MOD, EXP, AND, OR, EQ, NEQ, LARGER, LARGEREQ, LESS, LESSEQ, NOTSET };
+
+MathOperatorType getOperatorType(const char c);
 
 struct MathNode {
     MathNodeType type;
     long double constant;
     MathOperatorType opt;
-    string variable;
+    void* variable;
     MathNode* left;
     MathNode* right;
-    MathNode(MathNodeType t, string v) : type(t), variable(std::move(v)), constant(0), left(nullptr), right(nullptr), opt(MathOperatorType::NOTSET) {}
+    MathNode(MathNodeType t, void* v) : type(t), variable(v), constant(0), left(nullptr), right(nullptr), opt(MathOperatorType::NOTSET) {}
     MathNode(MathNodeType t, long double v) : type(t), constant(v), left(nullptr), right(nullptr), opt(MathOperatorType::NOTSET) {}
+    MathNode(MathNodeType t, MathOperatorType s) : type(t), variable(nullptr), constant(0), left(nullptr), right(nullptr), opt(s) {}
 };
 
+inline void* getPointer(const string& str, MathNodeType type){
+    if (type == MathNodeType::Variable) {
+        if (vars.find(str) != vars.end()) {
+            return vars[str];
+        } else {
+            cerr << "Error: variable <" << str << "> is not defined." << endl;
+            exit(0);
+        }
+    } else {
+        if (ars.find(str) != ars.end()) {
+            return ars[str];
+        } else {
+            cerr << "Error: list <" << str << "> is not defined." << endl;
+            exit(0);
+        }
+    }
+}
+
 inline bool isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^' || c == '&' || c == '|' || c == '=' || c == '<' || c == '>';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^' || c == '&' || c == '|' || c == '=' || c == '<' || c == '>' || c == '!' || c == 0x1d || c == 0x1e || c == 0x1f;
 }
 
 inline int precedence(char op) {
-    if (op == '+' || op == '-') {
+    if (op == '|') {
         return 1;
-    } else if (op == '*' || op == '/' || op == '%') {
+    } else if (op == '&') {
         return 2;
-    } else if (op == '^') {
+    } else if (op == '=' || op == '<' || op == '>' || op == 0x1d || op == 0x1e || op == 0x1f) {
         return 3;
+    } else if (op == '+' || op == '-') {
+        return 4;
+    } else if (op == '*' || op == '/' || op == '%') {
+        return 5;
+    } else if (op == '^') {
+        return 6;
     } else {
         return 0;
     }
 }
+
 
 inline string removeSpaces(string str) {
     str.erase(remove(str.begin(), str.end(), ' '), str.end());
@@ -86,13 +115,14 @@ MathNode* parseExpressionRaw(string expr) {
                 i++;
             }
             i--;
-            MathNode* tmp = new MathNode(MathNodeType::Variable, variable);
+            MathNode* tmp;
             if(variable.find('[') != std::string::npos){
-                tmp->type = MathNodeType::Array;
                 string arr_ind = variable.substr(variable.find('[')+1,variable.size()-variable.find('[')-2);
-                tmp->left = parseExpressionRaw(arr_ind);
                 string arr_id = variable.substr(0,variable.find('['));
-                tmp->variable = arr_id;
+                tmp = new MathNode(MathNodeType::Array, getPointer(arr_id, MathNodeType::Array));
+                tmp->left = parseExpressionRaw(arr_ind);
+            }else{
+                tmp = new MathNode(MathNodeType::Variable, getPointer(variable, MathNodeType::Variable));
             }
             nodeStack.push(tmp);
         } else if (expr[i] == '(') {
@@ -105,7 +135,8 @@ MathNode* parseExpressionRaw(string expr) {
                 nodeStack.pop();
                 MathNode* left = nodeStack.top();
                 nodeStack.pop();
-                MathNode* opMathNode = new MathNode(MathNodeType::Operator, string(1, op));
+                MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(op));
+                //MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(string(1, op)));
                 opMathNode->left = left;
                 opMathNode->right = right;
                 nodeStack.push(opMathNode);
@@ -120,7 +151,8 @@ MathNode* parseExpressionRaw(string expr) {
                 nodeStack.pop();
                 MathNode* left = nodeStack.top();
                 nodeStack.pop();
-                MathNode* opMathNode = new MathNode(MathNodeType::Operator, string(1, op2));
+                MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(op2));
+                //MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(string(1, op2)));
                 opMathNode->left = left;
                 opMathNode->right = right;
                 nodeStack.push(opMathNode);
@@ -136,7 +168,8 @@ MathNode* parseExpressionRaw(string expr) {
         nodeStack.pop();
         MathNode* left = nodeStack.top();
         nodeStack.pop();
-        MathNode* opMathNode = new MathNode(MathNodeType::Operator, string(1, op));
+        //MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(string(1, op)));
+        MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(op));
         opMathNode->left = left;
         opMathNode->right = right;
         nodeStack.push(opMathNode);
@@ -149,12 +182,7 @@ long double calculateExpression(MathNode* root){
     if(root->type == MathNodeType::Constant){
         return root->constant;
     }else if(root->type == MathNodeType::Variable) {
-        if (vars.find(root->variable) == vars.end()) {
-            cerr << "Error: variable (" << root->variable << ") does not exist" << endl;
-            exit(0); // terminate program
-        } else {
-            return vars[root->variable]; // get entry of map
-        }
+        return *((long double*)root->variable);
     }else if(root->type == MathNodeType::Operator){
         if(root->opt == MathOperatorType::PLUS){
             return calculateExpression(root->left) + calculateExpression(root->right);
@@ -174,81 +202,109 @@ long double calculateExpression(MathNode* root){
             return (calculateExpression(root->left) > 0 || calculateExpression(root->right) > 0);
         }else if(root->opt == MathOperatorType::EQ){
             return (calculateExpression(root->left) == calculateExpression(root->right));
+        }else if(root->opt == MathOperatorType::NEQ){
+            return (calculateExpression(root->left) != calculateExpression(root->right));
+        }else if(root->opt == MathOperatorType::LARGEREQ){
+            return (calculateExpression(root->left) >= calculateExpression(root->right));
+        }else if(root->opt == MathOperatorType::LESSEQ){
+            return (calculateExpression(root->left) <= calculateExpression(root->right));
         }else if(root->opt == MathOperatorType::LARGER){
             return (calculateExpression(root->left) > calculateExpression(root->right));
         }else if(root->opt == MathOperatorType::LESS) {
             return (calculateExpression(root->left) < calculateExpression(root->right));
         }
-    }else if(root->type == MathNodeType::Array){
-        if (ars.find(root->variable) == ars.end()) {
-            cerr << "Error: list entry (" << root->variable << ") does not exist" << endl;
-            exit(0); // terminate program
-        } else {
-            return ars[root->variable][(size_t)calculateExpression(root->left)]; // get entry of map
-        }
+    }else if(root->type == MathNodeType::Array) {
+        return (*reinterpret_cast<vector<long double>*>(root->variable))[(size_t)(calculateExpression(root->left))];
     }
-    cerr << "Error: math_core cannot calculate expression." << endl;
-    exit(0);
+    return 0;
 }
 
-inline char getOperatorChar(MathOperatorType type){
+inline void replace_special_operators(string& input) {
+    size_t pos = 0;
+    while ((pos = input.find("<=", pos)) != std::string::npos) {
+        input.replace(pos, 2, 1, (char)0x1d);
+        pos += 1;
+    }
+    pos = 0;
+    while ((pos = input.find(">=", pos)) != std::string::npos) {
+        input.replace(pos, 2, 1, (char)0x1e);
+        pos += 1;
+    }
+    pos = 0;
+    while ((pos = input.find("!=", pos)) != std::string::npos) {
+        input.replace(pos, 2, 1, (char)0x1f);
+        pos += 1;
+    }
+}
+
+
+inline string getOperator(MathOperatorType type){
     if(type == MathOperatorType::PLUS){
-        return '+';
+        return "ADD";
     }else if(type == MathOperatorType::MINUS){
-        return '-';
+        return "SUB";
     }else if(type == MathOperatorType::MULT){
-        return '*';
+        return "MULT";
     }else if(type == MathOperatorType::DIV){
-        return '/';
+        return "DIV";
     }else if(type == MathOperatorType::MOD){
-        return '%';
+        return "MOD";
     }else if(type == MathOperatorType::EXP){
-        return '^';
+        return "EXP";
     }else if(type == MathOperatorType::AND){
-        return '&';
+        return "AND";
     }else if(type == MathOperatorType::OR){
-        return '|';
+        return "OR";
     }else if(type == MathOperatorType::EQ){
-        return '=';
+        return "EQ";
     }else if(type == MathOperatorType::LARGER){
-        return '>';
+        return "LARGER";
     }else if(type == MathOperatorType::LESS){
-        return '<';
+        return "LESS";
+    }else if(type == MathOperatorType::NEQ){
+        return "UNEQUAL";
+    }else if(type == MathOperatorType::LESSEQ){
+        return "LESSQ";
+    }else if(type == MathOperatorType::LARGEREQ){
+        return "LARGERQ";
     }
-    return ' ';
+    return "";
 }
 
-inline void setOperatorType(MathNode* root){
-    if(root->type == MathNodeType::Operator){
-        if(root->variable == "+"){
-            root->opt = MathOperatorType::PLUS;
-        }else if (root->variable == "-"){
-            root->opt = MathOperatorType::MINUS;
-        }else if (root->variable == "*"){
-            root->opt = MathOperatorType::MULT;
-        }else if (root->variable == "/"){
-            root->opt = MathOperatorType::DIV;
-        }else if (root->variable == "%"){
-            root->opt = MathOperatorType::MOD;
-        }else if (root->variable == "^"){
-            root->opt = MathOperatorType::EXP;
-        }else if (root->variable == "&"){
-            root->opt = MathOperatorType::AND;
-        }else if (root->variable == "|"){
-            root->opt = MathOperatorType::OR;
-        }else if (root->variable == "="){
-            root->opt = MathOperatorType::EQ;
-        }else if (root->variable == ">"){
-            root->opt = MathOperatorType::LARGER;
-        }else if (root->variable == "<"){
-            root->opt = MathOperatorType::LESS;
+MathOperatorType getOperatorType(const char c){
+        if(c == '+'){
+            return MathOperatorType::PLUS;
+        }else if (c == '-'){
+            return MathOperatorType::MINUS;
+        }else if (c == '*'){
+            return MathOperatorType::MULT;
+        }else if (c == '/'){
+            return MathOperatorType::DIV;
+        }else if (c == '%'){
+            return MathOperatorType::MOD;
+        }else if (c == '^'){
+            return MathOperatorType::EXP;
+        }else if (c == '&'){
+            return MathOperatorType::AND;
+        }else if (c == '|'){
+            return MathOperatorType::OR;
+        }else if (c == '='){
+            return MathOperatorType::EQ;
+        }else if (c == '>'){
+            return MathOperatorType::LARGER;
+        }else if (c == '<'){
+            return MathOperatorType::LESS;
+        }else if (c == 0x1f){
+            return MathOperatorType::NEQ;
+        }else if (c == 0x1d){
+            return MathOperatorType::LESSEQ;
+        }else if (c == 0x1e){
+            return MathOperatorType::LARGEREQ;
         }
-        root->variable = "";
-    }
+        return MathOperatorType::NOTSET;
 }
 
 void optimizeExpression(MathNode* root){
-    setOperatorType(root); // Change char operator to enum for faster operations
 
     if(root->left != nullptr){ // Recurse the entire tree
         optimizeExpression(root->left);
@@ -371,6 +427,7 @@ bool checkExpression(const string& expr){
 MathNode* mathparse(const string& expr){
     if(checkExpression(expr)) {
         string expr_ws = removeSpaces(expr);
+        replace_special_operators(expr_ws);
         MathNode* expression = parseExpressionRaw(expr_ws);
         optimizeExpression(expression);
         return expression;
@@ -383,6 +440,7 @@ MathNode* mathparse(const string& expr){
 MathNode* varparse(const string& expr){
     if(checkExpression(expr)) {
         string expr_ws = removeSpaces(expr);
+        replace_special_operators(expr_ws);
         MathNode* expression = parseExpressionRaw(expr_ws);
         optimizeExpression(expression);
         if(expression->type == MathNodeType::Array || expression->type == MathNodeType::Variable){
