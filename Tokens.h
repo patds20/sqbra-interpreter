@@ -65,14 +65,18 @@ enum TokenType {
     ABS,
     PUSH,
     POP,
-    CHSL
+    CHSL,
+    LDEF,
+    READF,
+    WRITEF,
+    RANDOM
 }; // the type of data (type of command, expression, string, ...)
 
 class Node {
 public:
     TokenType type;
-    std::vector<Node> children;
-    std::string value;
+    std::vector<Node*> children;
+    void *value;
     MathNode* expression;
 }; // nodes contain commands, expressions, variables, values, statements, ...
 
