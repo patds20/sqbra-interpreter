@@ -13,7 +13,7 @@
 
 bool error;
 
-void checkPrintSyntax(vector<string> line, int lcount){
+inline void checkPrintSyntax(vector<string> line, int lcount){
     if(line[0] == "print" || line[0] == "printb"){
         if(line[1][0] != '[' || line[1][1] != '"' || line[line.size()-1][line[line.size()-1].size()-1] != ']'|| line[line.size()-1][line[line.size()-1].size()-2] != '"'){
             cout << "False string: line <" << lcount << "> - string needs to be enclosed [\"hello\"]" << endl;
@@ -32,7 +32,7 @@ void checkPrintSyntax(vector<string> line, int lcount){
     }
 }
 
-void checkFlowSyntax(vector<string> line, int lcount){
+inline void checkFlowSyntax(vector<string> line, int lcount){
     if(line[0] == "loop" || line[0] == "sloop"){
         if(line[2] != "do" || line[3] != "["){
             cout << "False loop statement: line <" << lcount << "> - correct usage: (s)loop <var> do [" << endl;
@@ -56,7 +56,7 @@ void checkFlowSyntax(vector<string> line, int lcount){
     }
 }
 
-void checkVarSyntax(vector<string> line, int lcount){
+inline void checkVarSyntax(vector<string> line, int lcount){
     if(line[0] == "cvar" && line.size() != 3){
         cout << "False declaration of variable: line <" << lcount << "> - correct usage: cvar <var> <value>" << endl;
         error = true;
@@ -72,7 +72,7 @@ void checkVarSyntax(vector<string> line, int lcount){
     }
 }
 
-void checkSVSyntax(vector<string> line, int lcount){
+inline void checkSVSyntax(vector<string> line, int lcount){
     if(line[0] == "round" && line.size() != 3){
         cout << "False 'round' command: line <" << lcount << "> - correct usage: round <var> precision" << endl;
         error = true;
@@ -82,38 +82,44 @@ void checkSVSyntax(vector<string> line, int lcount){
     }
 }
 
-void checkTrigSyntax(const vector<string>& line, int lcount){
+inline void checkTrigSyntax(const vector<string>& line, int lcount){
     if(line.size() != 3) {
         cout << "False trigonometric command: line <" << lcount << "> - correct usage: <trig> <var1> <var2>" << endl;
         error = true;
     }
 }
 
-void checkSingleSyntax(const vector<string>& line, int lcount){
+inline void checkSingleSyntax(const vector<string>& line, int lcount){
     if(line.size() != 1) {
         cout << "More arguments than required: <" << lcount << "> - correct usage: <command>" << endl;
         error = true;
     }
 }
 
-void checkLogSyntax(const vector<string>& line, int lcount){
+inline void checkLogSyntax(const vector<string>& line, int lcount){
     if(line.size() != 4) {
         cout << "False usage: <" << lcount << "> - correct usage: log <target> <source> <base>" << endl;
         error = true;
     }
 }
 
-void checkListFunctionsSyntax(const vector<string>& line, int lcount){
+inline void checkListFunctionsSyntax(const vector<string>& line, int lcount){
     if(line.size() != 3 && line[0] == "chsl") {
         cout << "False usage: <" << lcount << "> - correct usage: <chsl> <list> <length>" << endl;
         error = true;
-    }else if(line.size() != 3){
+    }else if(line.size() != 3 && (line[0] == "pop" || line[0] == "push")){
         cout << "False usage: <" << lcount << "> - correct usage: <pop / push> <variable> <list>" << endl;
+        error = true;
+    }else if(line.size() != 3 && line[0] == "ldef"){
+        cout << "False usage: <" << lcount << "> - correct usage: ldef <list> [0.32,0.32,0.55]" << endl;
+        error = true;
+    }else if(line.size() != 3 && (line[0] == "readf" || line[0] == "writef")){
+        cout << "False usage: <" << lcount << "> - correct usage: (readf / writef) <list> [\"path/to-your/file\"]" << endl;
         error = true;
     }
 }
 
-void checkFunctionSyntax(vector<string> line, int lcount){
+inline void checkFunctionSyntax(vector<string> line, int lcount){
     if(line[0] == "funct" && line.size() != 3){
         cout << "False declaration of a function: line <" << lcount << "> - correct usage: funct <function_name> [" << endl;
         error = true;
@@ -123,9 +129,16 @@ void checkFunctionSyntax(vector<string> line, int lcount){
     }
 }
 
-void checkXROOTSyntax(const vector<string>& line, int lcount){
+inline void checkXROOTSyntax(const vector<string>& line, int lcount){
     if(line.size() != 4) {
         cout << "False usage: <" << lcount << "> - correct usage: xroot <target> <source> <root>" << endl;
+        error = true;
+    }
+}
+
+inline void checkRANDOMSyntax(const vector<string>& line, int lcount){
+    if(line.size() != 4) {
+        cout << "False usage: <" << lcount << "> - correct usage: random <target> <max> <min>" << endl;
         error = true;
     }
 }
@@ -134,7 +147,7 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
     int lcount = 1;
     error = false;
     if(pl) {
-        cout << "SquareBracket Syntax Check (Version 2.0.1 Rapid Red Panda) *******" << endl << endl;
+        cout << "SquareBracket Syntax Check (Version 2.1.0 Rapid Red Panda) *******" << endl << endl;
     }
     for(auto &line : tokens){
         string token = line[0];
@@ -154,9 +167,11 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
             checkSingleSyntax(line, lcount);
         }else if(token == "xroot") {
             checkXROOTSyntax(line, lcount);
+        }else if(token == "random") {
+            checkRANDOMSyntax(line, lcount);
         }else if(token == "funct" || token == "call") {
             checkFunctionSyntax(line, lcount);
-        }else if(token == "pop" || token == "push" || token == "chsl") {
+        }else if(token == "pop" || token == "push" || token == "chsl" || token == "ldef" || token == "writef" || token == "readf") {
             checkListFunctionsSyntax(line, lcount);
         }else if(token == "]") {
             if (line.size() > 1) {
