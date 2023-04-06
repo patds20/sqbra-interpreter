@@ -4,6 +4,7 @@
 #include "Lexer.h"
 #include "Lector.h"
 #include "Parser.h"
+#include "FilesIO.h"
 #include "Recurser.h"
 #include <cstring>
 
@@ -36,7 +37,7 @@ string parse_inputcommand(int argc, char** argv, bool& pt, bool& c, bool& v, boo
             }
             else if (strcmp(argv[i], "-I") == 0) {
                 inp = true;
-                ars["args"] = vector<long double>();
+                ars["args"] = new vector<long double>;
             }
             else if (strcmp(argv[i], "--help") == 0) {
                 print_man_page();
@@ -45,14 +46,14 @@ string parse_inputcommand(int argc, char** argv, bool& pt, bool& c, bool& v, boo
             else if (isdigit(argv[i][1]) && inp){
                 string as_text = argv[i];
                 long double val = stod(as_text);
-                ars["args"].push_back(val);
+                ars["args"]->push_back(val);
             }
         } else if (codepath.empty()){
             codepath = argv[i];
         } else if (inp && !codepath.empty()) {
             string as_text = argv[i];
             long double val = stod(as_text);
-            ars["args"].push_back(val);
+            ars["args"]->push_back(val);
         }
     }
     return codepath;
@@ -70,7 +71,7 @@ int main(int argc, char *argv[]) {
     path_to_code = parse_inputcommand(argc, argv, pt, c, v, inp);
 
     if (v) {
-        cout << "SquareBracket Interpreter (Version 2.0.1 -- Rapid Red Panda / 2023)" << endl;
+        cout << "SquareBracket Interpreter (Version 2.1.0 -- Rapid Red Panda / 2023)" << endl;
         exit(0);
     }
     // CHECK WHETHER CODE IS AVAILABLE
@@ -94,13 +95,14 @@ int main(int argc, char *argv[]) {
 
     // INITIATE INTERPRETATION
     load_math_const();
+
     vector<vector<string> > tokens = lexer(code); // call the lexer to tokenize code
     repairTokens(&tokens); // fix small errors in the token vector
     if(c){ checkSyntax(tokens, true);} // if flag -c is activated -> only check code
     checkSyntax(tokens, false); // check code without being verbose
-    Node program_root = parseTree(tokens,0); // parse the tokens and create tree
-    if(pt){ printTreeRoot(&program_root); exit(0);} // print tree and stop if flag -pt is set
-    execute(&program_root); // execute code
+    Node* program_root = parseTree(tokens,0); // parse the tokens and create tree
+    if(pt){ printTreeRoot(program_root); exit(0);} // print tree and stop if flag -pt is set
+    execute(program_root); // execute code
 
     return 0;
 }
