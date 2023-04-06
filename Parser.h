@@ -19,10 +19,54 @@ using namespace std;
 
 int rLine = -1; // this variable tells the parser where to continue after an indented block
 
-Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLine) {
-    Node root;
-    root.type = ROOT;
-    std::vector<Node> stack;
+long double* makeVarEntry(const string& str){
+    if (vars.find(str) == vars.end()){
+        long double* newVar = (long double*)malloc(sizeof(long double));
+        vars[str] = newVar;
+        return newVar;
+    } else {
+        cerr << "Error: variable <" << str << "> is already defined." << endl;
+        exit(0);
+    }
+}
+
+vector<long double*>* makeMultipleVarEntries(const string& str){
+    auto* tmpVec = new vector<long double*>;
+    std::istringstream iss(str);
+    std::vector<std::string> words;
+    for (std::string word; iss >> word; ) {
+        words.push_back(word);
+    }
+    for (const auto& word : words) {
+        (*tmpVec).push_back(makeVarEntry(word));
+    }
+    return tmpVec;
+}
+
+vector<long double>* makeListEntry(const string& str){
+    if (ars.find(str) == ars.end()){
+        auto newArr = new vector<long double>;
+        ars[str] = newArr;
+        return newArr;
+    } else {
+        cerr << "Error: list <" << str << "> is already defined." << endl;
+        exit(0);
+    }
+}
+
+vector<long double>* getListEntry(const string& str){
+    if (ars.find(str) != ars.end()) {
+        return ars[str];
+    } else {
+        cerr << "Error: list <" << str << "> is not defined." << endl;
+        exit(0);
+    }
+}
+
+Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startLine) {
+    Node* root = new Node;
+    root->type = ROOT;
+    std::vector<Node*> stack;
     stack.push_back(root);
     int currentLine = 0;
 
@@ -38,31 +82,32 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
         }
         TokenType type = ROOT;
         std::string value = line[0];
-        Node tmpNod1;
-        Node tmpNod2;
-        Node child;
+        Node* tmpNod1 = new Node;
+        Node* tmpNod2 = new Node;
+        Node* tmpNod3 = new Node;
+        Node* child = new Node;
 
         if (value == "cvar") {
             type = CVAR;
-            tmpNod1.type = VARIABLE;
-            tmpNod1.value = line[1];
+            tmpNod1->type = VARIABLE;
+            tmpNod1->value = makeVarEntry(line[1]);
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.type = EXPRESSION;
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "clist") {
             type = CLIST;
-            tmpNod1.type = LISTIDENT;
-            tmpNod1.value = line[1];
+            tmpNod1->type = LISTIDENT;
+            tmpNod1->value = makeListEntry(line[1]);
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.type = EXPRESSION;
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "mvar") {
             type = MVAR;
-            tmpNod1.type = VARIABLES;
+            tmpNod1->type = VARIABLES;
             string apStr;
             for(int i = 1; i < line.size() - 1; i++){
                 if(i < line.size() - 2){
@@ -72,168 +117,170 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
                     apStr.append(line[i]);
                 }
             }
-            tmpNod1.value = apStr;
+            tmpNod1->value = makeMultipleVarEntries(apStr);
             MathNode* expr = mathparse(line[line.size() - 1]);
-            tmpNod2.type = EXPRESSION;
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "set") {
             type = SET;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.type = EXPRESSION;
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "input") {
             type = INPUT;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = STRING;
-            string pStr;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = STRING;
+            string* pStr = new string;
             for(int i = 2; i < line.size(); i++){
                 if(i < line.size() - 1){
-                    pStr.append(line[i] + " ");
+                    pStr->append(line[i] + " ");
                 }else{
-                    pStr.append(line[i]);
+                    pStr->append(line[i]);
                 }
             }
-            tmpNod2.value = pStr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->value = pStr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "loop") {
             type = LOOP;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXEC;
-            tmpNod2.children = parseTree(tokens,  currentLine + 1).children;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXEC;
+            tmpNod2->children = parseTree(tokens,  currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "funct") {
             type = FUNCT;
-            tmpNod1.type = STRING;
-            tmpNod1.value = line[1];
-            tmpNod2.type = EXEC;
-            tmpNod2.children = parseTree(tokens,  currentLine + 1).children;
+            tmpNod1->type = STRING;
+            string* apStr = new string;
+            *apStr = line[1];
+            tmpNod1->value = apStr;
+            tmpNod2->type = EXEC;
+            tmpNod2->children = parseTree(tokens,  currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "while") {
             type = WHILE;
             MathNode* expr = mathparse(line[1]);
-            tmpNod1.type = EXPRESSION;
-            tmpNod1.expression = expr;
-            tmpNod2.type = EXEC;
-            tmpNod2.children = parseTree(tokens, currentLine + 1).children;
+            tmpNod1->type = EXPRESSION;
+            tmpNod1->expression = expr;
+            tmpNod2->type = EXEC;
+            tmpNod2->children = parseTree(tokens, currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "inc") {
             type = INC;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            child->children.push_back(tmpNod1);
         } else if (value == "dec") {
             type = DEC;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            child->children.push_back(tmpNod1);
         } else if (value == "elif") {
             type = ELIF;
             MathNode* expr = mathparse(line[1]);
-            tmpNod1.type = EXPRESSION;
-            tmpNod1.expression = expr;
-            tmpNod2.type = EXEC;
-            tmpNod2.children = parseTree(tokens, currentLine + 1).children;
+            tmpNod1->type = EXPRESSION;
+            tmpNod1->expression = expr;
+            tmpNod2->type = EXEC;
+            tmpNod2->children = parseTree(tokens, currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "if") {
             type = IF;
             MathNode* expr = mathparse(line[1]);
-            tmpNod1.type = EXPRESSION;
-            tmpNod1.expression = expr;
-            tmpNod2.type = EXEC;
-            tmpNod2.children = parseTree(tokens, currentLine + 1).children;
+            tmpNod1->type = EXPRESSION;
+            tmpNod1->expression = expr;
+            tmpNod2->type = EXEC;
+            tmpNod2->children = parseTree(tokens, currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "else") {
             type = ELSE;
-            tmpNod1.type = EXEC;
-            tmpNod1.children = parseTree(tokens, currentLine + 1).children;
+            tmpNod1->type = EXEC;
+            tmpNod1->children = parseTree(tokens, currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
+            child->children.push_back(tmpNod1);
         } else if (value == "print") {
             type = PRINT;
-            tmpNod1.type = STRING;
-            string apStr;
+            tmpNod1->type = STRING;
+            string* apStr = new string;
             for(int i = 1; i < line.size(); i++){
                 if(i < line.size() - 1){
-                    apStr.append(line[i]);
-                    apStr.append(" ");
+                    apStr->append(line[i]);
+                    apStr->append(" ");
                 }else{
-                    apStr.append(line[i]);
+                    apStr->append(line[i]);
                 }
             }
-            tmpNod1.value = apStr;
-            child.children.push_back(tmpNod1);
+            tmpNod1->value = apStr;
+            child->children.push_back(tmpNod1);
         } else if (value == "printb") {
             type = PRINTB;
-            tmpNod1.type = STRING;
-            string apStr;
+            tmpNod1->type = STRING;
+            string* apStr = new string;
             for(int i = 1; i < line.size(); i++){
                 if(i < line.size() - 1){
-                    apStr.append(line[i]);
-                    apStr.append(" ");
+                    apStr->append(line[i]);
+                    apStr->append(" ");
                 }else{
-                    apStr.append(line[i]);
+                    apStr->append(line[i]);
                 }
             }
-            tmpNod1.value = apStr;
-            child.children.push_back(tmpNod1);
+            tmpNod1->value = apStr;
+            child->children.push_back(tmpNod1);
         } else if (value == "printv") {
             type = PRINTV;
             MathNode* expr = mathparse(line[1]);
-            tmpNod1.type = EXPRESSION;
-            tmpNod1.expression = expr;
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = EXPRESSION;
+            tmpNod1->expression = expr;
+            child->children.push_back(tmpNod1);
         } else if (value == "ceil") {
             type = CEIL;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            child->children.push_back(tmpNod1);
         } else if (value == "floor") {
             type = FLOOR;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            child->children.push_back(tmpNod1);
         } else if (value == "abs") {
             type = ABS;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            child->children.push_back(tmpNod1);
         } else if (value == "round") {
             type = ROUND;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.type = EXPRESSION;
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "newl") {
             type = NEWL;
         } else if (value == "exit") {
@@ -243,194 +290,238 @@ Node parseTree(const std::vector<std::vector<std::string> >& tokens, int startLi
         } else if (value == "]") {
             rLine = currentLine;
             type = END;
-            child.type = type;
-            root.children.push_back(child);
+            child->type = type;
+            root->children.push_back(child);
             return root;
         } else if (value == "log") {
             type = LOG;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.type = EXPRESSION;
-            tmpNod2.expression = expr;
-            Node tmpNod3;
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = expr;
             MathNode* expr2 = mathparse(line[3]);
-            tmpNod3.type = EXPRESSION;
-            tmpNod3.expression = expr2;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
-            child.children.push_back(tmpNod3);
+            tmpNod3->type = EXPRESSION;
+            tmpNod3->expression = expr2;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+            child->children.push_back(tmpNod3);
         } else if (value == "sin") {
             type = SIN;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "cos") {
             type = COS;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "tan") {
             type = TAN;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "sec") {
             type = SEC;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "csc") {
             type = CSC;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "sec") {
             type = SEC;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "cot") {
             type = COT;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "asin") {
             type = ASIN;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "acos") {
             type = ACOS;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "atan") {
             type = ATAN;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         }else if (value == "xroot") {
             type = XROOT;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            Node tmpNod3;
+            tmpNod2->expression = expr;
             MathNode* expr2 = mathparse(line[3]);
-            tmpNod3.type = EXPRESSION;
-            tmpNod3.expression = expr2;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
-            child.children.push_back(tmpNod3);
+            tmpNod3->type = EXPRESSION;
+            tmpNod3->expression = expr2;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+            child->children.push_back(tmpNod3);
+        }else if (value == "random") {
+            type = RANDOM;
+            MathNode* vrl = varparse(line[1]);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = EXPRESSION;
+            MathNode* expr = mathparse(line[2]);
+            tmpNod2->expression = expr;
+            MathNode* expr2 = mathparse(line[3]);
+            tmpNod3->type = EXPRESSION;
+            tmpNod3->expression = expr2;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+            child->children.push_back(tmpNod3);
         } else if (value == "push") {
             type = PUSH;
-            tmpNod1.type = EXPRESSION;
+            tmpNod1->type = EXPRESSION;
             MathNode* expr = mathparse(line[1]);
-            tmpNod1.expression = expr;
-            tmpNod2.type = LISTIDENT;
-            tmpNod2.value = line[2];
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod1->expression = expr;
+            tmpNod2->type = LISTIDENT;
+            tmpNod2->value = getListEntry(line[2]);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "pop") {
             type = POP;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = LISTIDENT;
-            tmpNod2.value = line[2];
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = LISTIDENT;
+            tmpNod2->value = getListEntry(line[2]);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "chsl") {
             type = CHSL;
-            tmpNod1.type = LISTIDENT;
-            tmpNod1.value = line[1];
-            tmpNod2.type = EXPRESSION;
+            tmpNod1->type = LISTIDENT;
+            tmpNod1->value = getListEntry(line[1]);
+            tmpNod2->type = EXPRESSION;
             MathNode* expr = mathparse(line[2]);
-            tmpNod2.expression = expr;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod2->expression = expr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "getl") {
             type = GETL;
             MathNode* vrl = varparse(line[1]);
-            tmpNod1.type = VARLIST;
-            tmpNod1.expression = vrl;
-            tmpNod2.type = LISTIDENT;
-            tmpNod2.value = line[2];
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            tmpNod2->type = LISTIDENT;
+            tmpNod2->value = getListEntry(line[2]);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+        } else if (value == "readf") {
+            type = READF;
+            tmpNod1->type = LISTIDENT;
+            tmpNod1->value = makeListEntry(line[1]);
+            tmpNod2->type = STRING;
+            string* apStr = new string;
+            *apStr = line[2];
+            tmpNod2->value = apStr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+        } else if (value == "writef") {
+            type = WRITEF;
+            tmpNod1->type = LISTIDENT;
+            tmpNod1->value = getListEntry(line[1]);
+            tmpNod2->type = STRING;
+            string* apStr = new string;
+            *apStr = line[2];
+            tmpNod2->value = apStr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+        } else if (value == "ldef") {
+            type = LDEF;
+            tmpNod1->type = LISTIDENT;
+            tmpNod1->value = makeListEntry(line[1]);
+            tmpNod2->type = STRING;
+            string* apStr = new string;
+            *apStr = line[2];
+            tmpNod2->value = apStr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "call") {
             type = CALL;
-            tmpNod1.type = STRING;
-            tmpNod1.value = line[1];
-            child.children.push_back(tmpNod1);
+            tmpNod1->type = STRING;
+            string* apStr = new string;
+            *apStr = line[1];
+            tmpNod1->value = apStr;
+            child->children.push_back(tmpNod1);
         } else if (value == "sloop") {
             type = SLOOP;
             MathNode* expr = mathparse(line[1]);
-            tmpNod1.type = EXPRESSION;
-            tmpNod1.expression = expr;
-            tmpNod2.type = EXEC;
-            tmpNod2.children = parseTree(tokens, currentLine + 1).children;
+            tmpNod1->type = EXPRESSION;
+            tmpNod1->expression = expr;
+            tmpNod2->type = EXEC;
+            tmpNod2->children = parseTree(tokens, currentLine + 1)->children;
             currentLine = rLine;
-            child.children.push_back(tmpNod1);
-            child.children.push_back(tmpNod2);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         }
 
-        child.type = type;
-        root.children.push_back(child);
+        child->type = type;
+        root->children.push_back(child);
         currentLine++;
     }
     return root;
@@ -446,7 +537,7 @@ void printMathTree(MathNode* root, int level) {
             cout << "CONST <" << root->constant << ">" << endl;
             break;
         case MathNodeType::Operator:
-            cout << "Operator <" << getOperatorChar(root->opt) << ">" << endl;
+            cout << "Operator <" << getOperator(root->opt) << ">" << endl;
             break;
         case MathNodeType::Array:
             cout << "ARR <" << root->variable << ">" << endl;
@@ -558,6 +649,15 @@ void printTree(Node* root, int level) {
         case CLIST:
             cout << "CLIST" << endl;
             break;
+        case LDEF:
+            cout << "LDEF" << endl;
+            break;
+        case READF:
+            cout << "READF" << endl;
+            break;
+        case WRITEF:
+            cout << "WRITEF" << endl;
+            break;
         case LISTIDENT:
             cout << "LISTID" << endl;
             break;
@@ -639,6 +739,9 @@ void printTree(Node* root, int level) {
         case CHSL:
             cout << "CHSL" << endl;
             break;
+        case RANDOM:
+            cout << "RANDOM" << endl;
+            break;
     }
 
     int i = 0;
@@ -651,13 +754,13 @@ void printTree(Node* root, int level) {
         } else {
             cout << "|--";
         }
-        printTree(&child, level + 1);
+        printTree(child, level + 1);
         i++;
     }
 } // print the parsed tree
 
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 2.0.1) -- © 2023 Patrick De Smet" << endl << endl;
+    cout << "SquareBracket Parser (Version 2.1.0) -- © 2023 Patrick De Smet" << endl << endl;
     printTree(root, 0);
     cout << endl;
 } // print logo and the parsed tree starting from the root
