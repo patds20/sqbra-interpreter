@@ -1,0 +1,28 @@
+# Collatz Conjecture Calculator
+
+mvar n tmp 0
+
+funct printres [
+   printv n
+   printb ["-"]
+]
+
+funct collatz [
+   while (tmp != 1) [
+      if ((n % 2) != 0) [
+         set tmp (3 * n + 1)
+      ]
+      else [
+         set tmp (n / 2)
+      ]
+      set n tmp
+      call printres
+   ]
+   print ["LOOP"]
+]
+
+loop args[0] do [
+   set n args[0]
+   set tmp 0
+   call collatz
+]
