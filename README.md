@@ -43,6 +43,7 @@
   <li><b><span style="color:blue">mvar</span> &lt;variable1&gt; &lt;variable2&gt; ... &lt;variableN&gt; &lt;initial_value&gt;</b>: Create multiple variables at once with the same initial value.</li>
   <li><b><span style="color:blue">set</span> &lt;variable_name&gt; (&lt;expression&gt;)</b>: Assign the value of the given expression to the variable with the given name.</li>
    <li><b><span style="color:blue">clist</span> name length</b>: create a list with the given name and length. Example: clist my_list 5.</li>
+   <li><b><span style="color:blue">ldef</span> name [1.23,1.65,1.87,23.4]</b>: create a predefined list.</li>
  </ul>
  <h3>Control Flow Statements</h3>
  <ul>
@@ -83,8 +84,8 @@
   </ul>
   <h3>Basic Math Functions</h3>
   <ul>
-  <li><b><span style="color:blue">floor</span> x</b>: round down the number x. Example: floor 3.14.</li>
-  <li><b><span style="color:blue">ceil</span> x</b>: round up the number x. Example: ceil 3.14.</li>
+  <li><b><span style="color:blue">floor</span> x</b>: round down the number x. Example: floor var1.</li>
+  <li><b><span style="color:blue">ceil</span> x</b>: round up the number x. Example: ceil var1.</li>
   <li><b><span style="color:blue">round</span> x</b> precision: round the number x to the given number of precision digits. Example: round 3.14159 3.</li>
   <li><b><span style="color:blue">xroot</span> target source rt</b>: calculate var^(1/rt). Example: xroot var1 (2+x) 2 calculates the square root of (2+x) and saves the result in var1.</li>
   <li><b><span style="color:blue">random</span> target max min</b>: set target to a random double with interval [max,min]. Example: random x 0 10.</li>
