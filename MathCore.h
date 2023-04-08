@@ -105,7 +105,7 @@ MathNode* parseExpressionRaw(string expr) {
             nodeStack.push(new MathNode(MathNodeType::Constant, stod(number)));
         } else if (isalpha(expr[i])) {
             string variable;
-            while (i < expr.size() && (isalpha(expr[i]) || isdigit(expr[i]) || (isOperator(expr[i]) && open_sqbr >= 1) || (expr[i] == '[' || expr[i] == ']') || (open_sqbr >= 1 && (expr[i] == '(' || expr[i] == ')')))) {
+            while (i < expr.size() && (isalpha(expr[i]) || isdigit(expr[i]) || expr[i] == '_' || (isOperator(expr[i]) && open_sqbr >= 1) || (expr[i] == '[' || expr[i] == ']') || (open_sqbr >= 1 && (expr[i] == '(' || expr[i] == ')')))) {
                 if(expr[i] == '['){
                     open_sqbr += 1;
                 }else if(expr[i] == ']' && open_sqbr > 0){
@@ -136,7 +136,6 @@ MathNode* parseExpressionRaw(string expr) {
                 MathNode* left = nodeStack.top();
                 nodeStack.pop();
                 MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(op));
-                //MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(string(1, op)));
                 opMathNode->left = left;
                 opMathNode->right = right;
                 nodeStack.push(opMathNode);
@@ -152,7 +151,6 @@ MathNode* parseExpressionRaw(string expr) {
                 MathNode* left = nodeStack.top();
                 nodeStack.pop();
                 MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(op2));
-                //MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(string(1, op2)));
                 opMathNode->left = left;
                 opMathNode->right = right;
                 nodeStack.push(opMathNode);
@@ -414,7 +412,7 @@ bool checkExpression(const string& expr){
             sqbrackets += 1;
         }else if(i == ']'){
             sqbrackets -= 1;
-        }else if(!(i == ' ' || i == '.' || isdigit(i) || isalpha(i) || isOperator(i))){
+        }else if(!(i == ' ' || i == '.' || isdigit(i) || i == '_' || isalpha(i) || isOperator(i))){
             return false;
         }
     }
