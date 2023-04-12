@@ -21,10 +21,11 @@ using namespace std;
 
 unordered_map<string, long double*> vars; // global map for all vars
 unordered_map<string, vector<long double>*> ars; // global map for all arrays
+unordered_map<string, vector<vector<long double>* >*> mars; // global map for all matrices
 
 
 // Operator and MathNode Types
-enum class MathNodeType { Constant, Variable, Array, Operator };
+enum class MathNodeType { Constant, Variable, Array, Matrix, Operator };
 enum class MathOperatorType { PLUS, MINUS, MULT, DIV, MOD, EXP, AND, OR, EQ, NEQ, LARGER, LARGEREQ, LESS, LESSEQ, NOTSET };
 
 MathOperatorType getOperatorType(const char c);
@@ -41,6 +42,13 @@ struct MathNode {
     MathNode(MathNodeType t, MathOperatorType s) : type(t), variable(nullptr), constant(0), left(nullptr), right(nullptr), opt(s) {}
 };
 
+struct MathTypeReturn {
+    MathNodeType type;
+    string var;
+    string ind1;
+    string ind2;
+};
+
 inline void* getPointer(const string& str, MathNodeType type){
     if (type == MathNodeType::Variable) {
         if (vars.find(str) != vars.end()) {
@@ -49,11 +57,18 @@ inline void* getPointer(const string& str, MathNodeType type){
             cerr << "Error: variable <" << str << "> is not defined." << endl;
             exit(0);
         }
-    } else {
+    } else if (type == MathNodeType::Array) {
         if (ars.find(str) != ars.end()) {
             return ars[str];
         } else {
             cerr << "Error: list <" << str << "> is not defined." << endl;
+            exit(0);
+        }
+    } else {
+        if (mars.find(str) != mars.end()) {
+            return mars[str];
+        } else {
+            cerr << "Error: matrix <" << str << "> is not defined." << endl;
             exit(0);
         }
     }
@@ -87,6 +102,46 @@ inline string removeSpaces(string str) {
     return str;
 }
 
+// Check if the input string s represents a 2D matrix or a 1D list, and extract its indices
+inline MathTypeReturn determineType(string& str) {
+    int count = 0;
+    int dimensions = 0;
+    MathTypeReturn res;
+    for(auto i : str){
+        if(i == '['){
+            // Increment dimensions only once per opening bracket
+            if(count == 0){
+                dimensions++;
+            }
+            count++;
+        } else if(i == ']') {
+            count--;
+        }
+        // Extract components based on the count and dimension
+        if(count == 0 && i != ']' || count == 1 && i != '[' || count > 1){
+            if(dimensions == 0){
+                res.var.push_back(i);
+            } else if(dimensions == 1){
+                res.ind1.push_back(i);
+            } else{
+                res.ind2.push_back(i);
+            }
+        }
+    }
+    // Return type of variable
+    if(dimensions == 0){
+        res.type = MathNodeType::Variable;
+    } else if(dimensions == 1){
+        res.type = MathNodeType::Array;
+    } else if(dimensions == 2){
+        res.type = MathNodeType::Matrix;
+    } else{
+        cerr << "Error: expression <" << str << "> is incorrect." << endl;
+        exit(0);
+    }
+    return res;
+}
+
 MathNode* parseExpressionRaw(string expr) {
     stack<MathNode*> nodeStack;
     stack<char> opStack;
@@ -116,13 +171,16 @@ MathNode* parseExpressionRaw(string expr) {
             }
             i--;
             MathNode* tmp;
-            if(variable.find('[') != std::string::npos){
-                string arr_ind = variable.substr(variable.find('[')+1,variable.size()-variable.find('[')-2);
-                string arr_id = variable.substr(0,variable.find('['));
-                tmp = new MathNode(MathNodeType::Array, getPointer(arr_id, MathNodeType::Array));
-                tmp->left = parseExpressionRaw(arr_ind);
-            }else{
+            MathTypeReturn detT = determineType(variable);
+            if(detT.type == MathNodeType::Variable){
                 tmp = new MathNode(MathNodeType::Variable, getPointer(variable, MathNodeType::Variable));
+            }else if(detT.type == MathNodeType::Array){
+                tmp = new MathNode(MathNodeType::Array, getPointer(detT.var, MathNodeType::Array));
+                tmp->left = parseExpressionRaw(detT.ind1);
+            }else{
+                tmp = new MathNode(MathNodeType::Matrix, getPointer(detT.var, MathNodeType::Matrix));
+                tmp->left = parseExpressionRaw(detT.ind1);
+                tmp->right = parseExpressionRaw(detT.ind2);
             }
             nodeStack.push(tmp);
         } else if (expr[i] == '(') {
@@ -166,7 +224,6 @@ MathNode* parseExpressionRaw(string expr) {
         nodeStack.pop();
         MathNode* left = nodeStack.top();
         nodeStack.pop();
-        //MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(string(1, op)));
         MathNode* opMathNode = new MathNode(MathNodeType::Operator, getOperatorType(op));
         opMathNode->left = left;
         opMathNode->right = right;
@@ -212,7 +269,24 @@ long double calculateExpression(MathNode* root){
             return (calculateExpression(root->left) < calculateExpression(root->right));
         }
     }else if(root->type == MathNodeType::Array) {
-        return (*reinterpret_cast<vector<long double>*>(root->variable))[(size_t)(calculateExpression(root->left))];
+        auto list = reinterpret_cast<vector<long double>*>(root->variable);
+        auto i = (int)(calculateExpression(root->left));
+        if(list->size() > i){
+            return (*list)[i];
+        }else{
+            cerr << "Error: Index out of bounds for list <" << root->variable << "> at index <" << i << ">." << endl;
+            exit(0);
+        }
+    }else if(root->type == MathNodeType::Matrix) {
+        auto mat = reinterpret_cast<vector<vector<long double>*>*>(root->variable);
+        auto i1 = (int)(calculateExpression(root->left));
+        auto i2 = (int)(calculateExpression(root->right));
+        if(i1 < mat->size() && i2 < (*(*mat)[i1]).size()){
+            return (*(*mat)[i1])[i2];
+        }else{
+            cerr << "Error: Index out of bounds for matrix <" << root->variable << "> at indices <" << i1 << "," << i2 << ">." << endl;
+            exit(0);
+        }
     }
     return 0;
 }
@@ -412,7 +486,7 @@ bool checkExpression(const string& expr){
             sqbrackets += 1;
         }else if(i == ']'){
             sqbrackets -= 1;
-        }else if(!(i == ' ' || i == '.' || isdigit(i) || i == '_' || isalpha(i) || isOperator(i))){
+        }else if(!(i == ' ' || i == '.' || i == '_' || isdigit(i) || isalpha(i) || isOperator(i))){
             return false;
         }
     }
@@ -441,7 +515,7 @@ MathNode* varparse(const string& expr){
         replace_special_operators(expr_ws);
         MathNode* expression = parseExpressionRaw(expr_ws);
         optimizeExpression(expression);
-        if(expression->type == MathNodeType::Array || expression->type == MathNodeType::Variable){
+        if(expression->type == MathNodeType::Array || expression->type == MathNodeType::Variable || expression->type == MathNodeType::Matrix){
             return expression;
         }
         cerr << "Error: <" << expr << "> must be only a variable or list entry." << endl;
