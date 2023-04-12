@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     path_to_code = parse_inputcommand(argc, argv, pt, c, v, inp);
 
     if (v) {
-        cout << "SquareBracket Interpreter (Version 2.1.0 -- Rapid Red Panda / 2023)" << endl;
+        cout << "SquareBracket Interpreter (Version 2.2.0 -- Rapid Red Panda / 2023)" << endl;
         exit(0);
     }
     // CHECK WHETHER CODE IS AVAILABLE
@@ -103,6 +103,5 @@ int main(int argc, char *argv[]) {
     Node* program_root = parseTree(tokens,0); // parse the tokens and create tree
     if(pt){ printTreeRoot(program_root); exit(0);} // print tree and stop if flag -pt is set
     execute(program_root); // execute code
-
     return 0;
 }
