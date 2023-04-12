@@ -1,5 +1,5 @@
 <img src="images/squarebracket.png" alt="Logo" width="50%">
-<h1>SQBRA Interpreter <i>(Version 2.1.0 - Rapid Red Panda)</i></h1>
+<h1>SQBRA Interpreter <i>(Version 2.2.0 - Rapid Red Panda)</i></h1>
 <h2>Interpreter for the SquareBracket Programming Language</h2>
 <p>SquareBracket is a <b>simple programming language</b> designed to make the execution of small algorithms and math scripts easy. It has a syntax that is <b>easy to learn</b> and intuitive commands to perform mathematical operations, create variables, and control program flow. It is designed to be extensible and many <b>more functions will be added in future versions</b> to make it more powerful. With its focus on simplicity and ease of use, SquareBracket is a good choice for anyone looking to quickly and easily create and execute mathematical algorithms and scripts. Small bugs may still occur. The interpreter is lightweight and completely <b>implemented in C++</b>.</p>
 <h2>Usage</h2>
@@ -43,7 +43,9 @@
   <li><b><span style="color:blue">mvar</span> &lt;variable1&gt; &lt;variable2&gt; ... &lt;variableN&gt; &lt;initial_value&gt;</b>: Create multiple variables at once with the same initial value.</li>
   <li><b><span style="color:blue">set</span> &lt;variable_name&gt; (&lt;expression&gt;)</b>: Assign the value of the given expression to the variable with the given name.</li>
    <li><b><span style="color:blue">clist</span> name length</b>: create a list with the given name and length. Example: clist my_list 5.</li>
+   <li><b><span style="color:blue">cmat</span> name length1 length2</b>: create a matrix with the given name and size. Example: cmat my_matrix 5 5.</li>
    <li><b><span style="color:blue">ldef</span> name [1.23,1.65,1.87,23.4]</b>: create a predefined list.</li>
+   <li><b><span style="color:blue">mdef</span> name [[1,2],[3,4]]</b>: create a predefined matrix.</li>
  </ul>
  <h3>Control Flow Statements</h3>
  <ul>
@@ -104,5 +106,5 @@
 <p>Please take a look at the example programs in the corresponding directory.</p>
 
 <h2>Data Structures:</h2>
-<p>In SquareBracket, the only data structures available are doubles and lists of doubles. You can create a new list with the "clist" command followed by the name and the length of the list. You can access elements of the list by indexing the list with square brackets, for example: "my_list[index]". You can also use the "getl" command to get the length of a list and assign it to a variable.</p>
+<p>In SquareBracket, the only data structures available are doubles, lists and matrices of doubles. You can create a new list with the "clist" command followed by the name and the length of the list. Matrices can be created with the "cmat" command, the name and two expressions for the length in both dimensions. You can access elements of the list by indexing the list with square brackets, for example: "my_list[index]" or matrices with "my_matrix[i1][i2]". You can also use the "getl" command to get the length of a list and assign it to a variable.</p>
   
