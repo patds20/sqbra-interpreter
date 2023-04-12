@@ -19,6 +19,7 @@ using namespace std;
 
 int rLine = -1; // this variable tells the parser where to continue after an indented block
 
+//! Create a Single Variable
 long double* makeVarEntry(const string& str){
     if (vars.find(str) == vars.end()){
         long double* newVar = (long double*)malloc(sizeof(long double));
@@ -30,6 +31,7 @@ long double* makeVarEntry(const string& str){
     }
 }
 
+//! Create Multiple Variables at Once
 vector<long double*>* makeMultipleVarEntries(const string& str){
     auto* tmpVec = new vector<long double*>;
     std::istringstream iss(str);
@@ -43,6 +45,7 @@ vector<long double*>* makeMultipleVarEntries(const string& str){
     return tmpVec;
 }
 
+//! Create a New List and Return Pointer
 vector<long double>* makeListEntry(const string& str){
     if (ars.find(str) == ars.end()){
         auto newArr = new vector<long double>;
@@ -54,6 +57,7 @@ vector<long double>* makeListEntry(const string& str){
     }
 }
 
+//! Get Pointer for List from String
 vector<long double>* getListEntry(const string& str){
     if (ars.find(str) != ars.end()) {
         return ars[str];
@@ -63,6 +67,29 @@ vector<long double>* getListEntry(const string& str){
     }
 }
 
+//! Create a New Empty Matrix and Return Pointer
+vector<vector<long double>* >* makeMatrixEntry(const string& str){
+    if (mars.find(str) == mars.end()){
+        auto newMat = new vector<vector<long double>* >;
+        mars[str] = newMat;
+        return newMat;
+    } else {
+        cerr << "Error: matrix <" << str << "> is already defined." << endl;
+        exit(0);
+    }
+}
+
+//! Get Pointer for Matrix from String
+vector<vector<long double>* >* getMatrixEntry(const string& str){
+    if (mars.find(str) != mars.end()) {
+        return mars[str];
+    } else {
+        cerr << "Error: matrix <" << str << "> is not defined." << endl;
+        exit(0);
+    }
+}
+
+//! Parse Tokens, Determine Type of Node and Build Tree
 Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startLine) {
     Node* root = new Node;
     root->type = ROOT;
@@ -105,6 +132,19 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod2->expression = expr;
             child->children.push_back(tmpNod1);
             child->children.push_back(tmpNod2);
+        } else if (value == "cmat") {
+            type = CMAT;
+            tmpNod1->type = MATIDENT;
+            tmpNod1->value = makeMatrixEntry(line[1]);
+            MathNode* dim1 = mathparse(line[2]);
+            MathNode* dim2 = mathparse(line[3]);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = dim1;
+            tmpNod3->type = EXPRESSION;
+            tmpNod3->expression = dim2;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+            child->children.push_back(tmpNod3);
         } else if (value == "mvar") {
             type = MVAR;
             tmpNod1->type = VARIABLES;
@@ -252,6 +292,11 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             MathNode* expr = mathparse(line[1]);
             tmpNod1->type = EXPRESSION;
             tmpNod1->expression = expr;
+            child->children.push_back(tmpNod1);
+        } else if (value == "printm") {
+            type = PRINTM;
+            tmpNod1->type = MATIDENT;
+            tmpNod1->value = getMatrixEntry(line[1]);
             child->children.push_back(tmpNod1);
         } else if (value == "ceil") {
             type = CEIL;
@@ -501,6 +546,16 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod2->value = apStr;
             child->children.push_back(tmpNod1);
             child->children.push_back(tmpNod2);
+        } else if (value == "mdef") {
+            type = MDEF;
+            tmpNod1->type = MATIDENT;
+            tmpNod1->value = makeMatrixEntry(line[1]);
+            tmpNod2->type = STRING;
+            string* apStr = new string;
+            *apStr = line[2];
+            tmpNod2->value = apStr;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
         } else if (value == "call") {
             type = CALL;
             tmpNod1->type = STRING;
@@ -525,8 +580,9 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
         currentLine++;
     }
     return root;
-} // parse tokens and create tree
+}
 
+//! Print MathTree Subtree Recursively
 void printMathTree(MathNode* root, int level) {
     cout << " ";
     switch (root->type) {
@@ -542,6 +598,9 @@ void printMathTree(MathNode* root, int level) {
         case MathNodeType::Array:
             cout << "ARR <" << root->variable << ">" << endl;
             break;
+        case MathNodeType::Matrix:
+            cout << "MAT <" << root->variable << ">" << endl;
+            break;
     }
 
     int i = 0;
@@ -549,7 +608,7 @@ void printMathTree(MathNode* root, int level) {
         for (int j = 0; j < level; j++) {
             cout << "   ";
         }
-        if(root->type == MathNodeType::Array){
+        if(root->type == MathNodeType::Array || root->type == MathNodeType::Matrix){
             cout << "`--";
         }else{
             cout << "|--";
@@ -565,8 +624,9 @@ void printMathTree(MathNode* root, int level) {
         printMathTree(root->right, level + 1);
         i++;
     }
-} // print the parsed expression subtrees
+}
 
+//! Print the Parsed Tree Recursively
 void printTree(Node* root, int level) {
     cout << " ";
     switch (root->type) {
@@ -609,6 +669,9 @@ void printTree(Node* root, int level) {
         case PRINTV:
             cout << "PRINTV" << endl;
             break;
+        case PRINTM:
+            cout << "PRINTM" << endl;
+            break;
         case NEWL:
             cout << "NEWL" << endl;
             break;
@@ -649,8 +712,14 @@ void printTree(Node* root, int level) {
         case CLIST:
             cout << "CLIST" << endl;
             break;
+        case CMAT:
+            cout << "CMAT" << endl;
+            break;
         case LDEF:
             cout << "LDEF" << endl;
+            break;
+        case MDEF:
+            cout << "MDEF" << endl;
             break;
         case READF:
             cout << "READF" << endl;
@@ -660,6 +729,9 @@ void printTree(Node* root, int level) {
             break;
         case LISTIDENT:
             cout << "LISTID" << endl;
+            break;
+        case MATIDENT:
+            cout << "MATID" << endl;
             break;
         case INPUT:
             cout << "INPUT" << endl;
@@ -757,13 +829,13 @@ void printTree(Node* root, int level) {
         printTree(child, level + 1);
         i++;
     }
-} // print the parsed tree
+}
 
+//! Print Information and Initiate Output of Tree
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 2.1.0) -- © 2023 Patrick De Smet" << endl << endl;
+    cout << "SquareBracket Parser (Version 2.2.0) -- © 2023 Patrick De Smet" << endl << endl;
     printTree(root, 0);
     cout << endl;
-} // print logo and the parsed tree starting from the root
-
+}
 
 #endif //SQBRA_PARSER_H
