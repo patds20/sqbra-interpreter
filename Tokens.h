@@ -14,17 +14,19 @@
 
 using namespace std;
 
-// STRUCTURES
+//! Enum for Token Types
 enum TokenType {
     ROOT,
     CVAR,
     CLIST,
+    CMAT,
     MVAR,
     INPUT,
     SET,
     CEIL,
     FLOOR,
     LISTIDENT,
+    MATIDENT,
     ROUND,
     LOOP,
     SLOOP,
@@ -37,6 +39,7 @@ enum TokenType {
     PRINT,
     PRINTB,
     PRINTV,
+    PRINTM,
     NEWL,
     END,
     STRING,
@@ -67,6 +70,7 @@ enum TokenType {
     POP,
     CHSL,
     LDEF,
+    MDEF,
     READF,
     WRITEF,
     RANDOM
