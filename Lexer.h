@@ -28,11 +28,16 @@ vector<vector<string> > lexer(const string& input) {
         vector<string> tokens;
         string token;
         int bracket_count = 0;
+        bool in_sqbra = false;
         for (char c : line) {
             if (c == ' ' || c == '\t') {
                 if (!token.empty() && bracket_count == 0) {
-                    tokens.push_back(token);
-                    token = "";
+                    if(!in_sqbra){
+                        tokens.push_back(token);
+                        token = "";
+                    }else{
+                        token += c;
+                    }
                 }
             } else if (c == '(') {
                 bracket_count++;
@@ -47,6 +52,12 @@ vector<vector<string> > lexer(const string& input) {
             } else if (c == '\r') {
                 cerr << "Error: SQBRA does not accept CRLF line endings." << endl;
                 exit(0);
+            } else if (c == '[') {
+                in_sqbra = true;
+                token += c;
+            } else if (c == ']') {
+                in_sqbra = false;
+                token += c;
             } else {
                 token += c;
             }
@@ -129,7 +140,7 @@ void repairTokens(std::vector<std::vector<std::string> > *strings) {
         }
         if(vec[0].find("printb") != std::string::npos){
             fix_printb_syntax(&vec);
-        }else if(vec[0].find("print") != std::string::npos && vec[0].find("printv") == std::string::npos){
+        }else if(vec[0].find("print") != std::string::npos && vec[0].find("printv") == std::string::npos && vec[0].find("printm") == std::string::npos){
             fix_print_syntax(&vec);
         }else if(vec[0].find("elif") != std::string::npos){
             fix_elif_syntax(&vec);
