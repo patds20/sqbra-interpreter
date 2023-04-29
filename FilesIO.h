@@ -34,8 +34,8 @@ inline string extract_list_string(const string& input) {
     return input.substr(start_pos + 1, end_pos - start_pos - 1);
 }
 
-//! Read and input csv files
-inline void read_csv(const std::string& filename, std::vector<long double>* output) {
+//! Read and input csv files as matrices
+inline void read_csv(const std::string& filename, std::vector<std::vector<long double>*>* output) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << filename << std::endl;
@@ -43,29 +43,42 @@ inline void read_csv(const std::string& filename, std::vector<long double>* outp
     }
     std::string line;
     while (std::getline(file, line)) {
+        auto linevector = new std::vector<long double>;
         std::istringstream ss(line);
         std::string token;
         while (std::getline(ss, token, ',')) {
             try {
                 long double value = std::stold(token);
-                output->push_back(value);
+                linevector->push_back(value);
             } catch (const std::exception& e) {
                 std::cerr << "Error: Failed to convert token to long double: " << token << std::endl;
                 exit(0);
             }
         }
+        output->push_back(linevector);
     }
 }
 
-//! Write lists to csv files
-inline void write_csv(const std::string& filename, std::vector<long double>* numbers) {
+//! Write matrices to csv files
+inline void write_csv(const std::string& filename, std::vector<std::vector<long double>*>* numbers) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << filename << std::endl;
         exit(0);
     }
-    for (const auto& number : *numbers) {
-        file << number << ",";
+    for (int i = 0; i < numbers->size(); i++){
+        std::vector<long double>* subvector = (*numbers)[i];
+        for (int x = 0; x < subvector->size(); x++){
+            file << (*subvector)[x];
+            if (x < subvector->size() - 1){
+                file << ",";
+            }
+        }
+        if(i < numbers->size() - 1){
+            file << "\n";
+        }else{
+            file << " ";
+        }
     }
     // Remove the last comma
     file.seekp(-1, std::ios_base::end);
