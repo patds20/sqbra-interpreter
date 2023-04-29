@@ -516,10 +516,23 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod2->value = getListEntry(line[2]);
             child->children.push_back(tmpNod1);
             child->children.push_back(tmpNod2);
+        } else if (value == "getdim") {
+            type = GETDIM;
+            MathNode* vrl1 = varparse(line[1]);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl1;
+            MathNode* vrl2 = varparse(line[2]);
+            tmpNod2->type = VARLIST;
+            tmpNod2->expression = vrl2;
+            tmpNod3->type = LISTIDENT;
+            tmpNod3->value = getMatrixEntry(line[3]);
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+            child->children.push_back(tmpNod3);
         } else if (value == "readf") {
             type = READF;
-            tmpNod1->type = LISTIDENT;
-            tmpNod1->value = makeListEntry(line[1]);
+            tmpNod1->type = MATIDENT;
+            tmpNod1->value = getMatrixEntry(line[1]);
             tmpNod2->type = STRING;
             string* apStr = new string;
             *apStr = line[2];
@@ -528,8 +541,8 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             child->children.push_back(tmpNod2);
         } else if (value == "writef") {
             type = WRITEF;
-            tmpNod1->type = LISTIDENT;
-            tmpNod1->value = getListEntry(line[1]);
+            tmpNod1->type = MATIDENT;
+            tmpNod1->value = getMatrixEntry(line[1]);
             tmpNod2->type = STRING;
             string* apStr = new string;
             *apStr = line[2];
@@ -790,6 +803,9 @@ void printTree(Node* root, int level) {
         case GETL:
             cout << "GETL" << endl;
             break;
+        case GETDIM:
+            cout << "GETDIM" << endl;
+            break;
         case XROOT:
             cout << "XROOT" << endl;
             break;
@@ -833,7 +849,7 @@ void printTree(Node* root, int level) {
 
 //! Print Information and Initiate Output of Tree
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 2.2.0) -- © 2023 Patrick De Smet" << endl << endl;
+    cout << "SquareBracket Parser (Version 2.2.1) -- © 2023 Patrick De Smet" << endl << endl;
     printTree(root, 0);
     cout << endl;
 }
