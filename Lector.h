@@ -85,7 +85,10 @@ inline void checkVarSyntax(vector<string> line, int lcount){
             cout << "False declaration of matrix: line <" << lcount << "> - correct usage: cmat <name> <dim1> <dim2>" << endl;
             error = true;
     }else if(line[0] == "getl" && line.size() != 3){
-        cout << "False getl: line <" << lcount << "> - correct usage: getl <var> <list>" << endl;
+        cout << "False 'getl' command: line <" << lcount << "> - correct usage: getl <var> <list>" << endl;
+        error = true;
+    }else if(line[0] == "getdim" && line.size() != 4){
+        cout << "False 'getdim' command: line <" << lcount << "> - correct usage: getdim <var_rows> <var_columns> <matrix>" << endl;
         error = true;
     }else if(line[0] == "set" && line.size() != 3){
         cout << "False assignment of value: line <" << lcount << "> - correct usage: set <var> (expression)" << endl;
@@ -180,7 +183,7 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
     int lcount = 1;
     error = false;
     if(pl) {
-        cout << "SquareBracket Syntax Check (Version 2.2.0 Rapid Red Panda) *******" << endl << endl;
+        cout << "SquareBracket Syntax Check (Version 2.2.1 Rapid Red Panda) *******" << endl << endl;
     }
     for(auto &line : tokens){
         string token = line[0];
@@ -188,7 +191,7 @@ void checkSyntax(vector<vector<string> > &tokens, bool pl){
             checkPrintSyntax(line, lcount);
         }else if(token == "loop" || token == "sloop" || token == "while" || token == "if" || token == "elif" || token == "else"){
             checkFlowSyntax(line, lcount);
-        }else if(token == "cvar" || token == "mvar"  || token == "cmat" || token == "clist" || token == "set" || token == "getl"){
+        }else if(token == "cvar" || token == "mvar"  || token == "cmat" || token == "clist" || token == "set" || token == "getl" || token == "getdim"){
             checkVarSyntax(line, lcount);
         }else if(token == "inc" || token == "dec" || token == "ceil" || token == "floor" || token == "round" || token == "abs"){
             checkSVSyntax(line, lcount);
