@@ -248,7 +248,13 @@ inline void command_trig(MathNode* varlist, MathNode* source, TokenType func){
 
 //! Command: Save the Length of a List (GETL)
 inline void command_getl(MathNode* varlist, vector<long double>* listid){
-    setVarListEntry(varlist, (long double)(*reinterpret_cast<vector<long double>*>(listid)).size());
+    setVarListEntry(varlist, (long double)listid->size());
+}
+
+//! Command: Save the Dimensions of a Matrix (GETDIM)
+inline void command_getdim(MathNode* rows, MathNode* columns, vector<vector<long double>*>* listid){
+    setVarListEntry(rows, (long double)listid->size());
+    setVarListEntry(columns, (long double)((*listid)[0])->size());
 }
 
 //! Command: Calculate a Specific Root of the Variable and Save it (XROOT)
@@ -306,14 +312,14 @@ inline void command_mdef(vector<vector<long double>* >* matid, string* stri){
     parse_matrix(*stri,matid);
 }
 
-//! Command: Read a CSV File and Save it to a List (READF)
-inline void command_readf(vector<long double>* listid, string* filename){
+//! Command: Read a CSV File and Save it to a Matrix (READF)
+inline void command_readf(vector<vector<long double>*>* listid, string* filename){
     string filepath = extract_string(*filename);
     read_csv(filepath,listid);
 }
 
-//! Command: Write a List to a CSV File (WRITEF)
-inline void command_writef(vector<long double>* listid, string* filename){
+//! Command: Write a Matrix to a CSV File (WRITEF)
+inline void command_writef(vector<vector<long double>*>* listid, string* filename){
     string filepath = extract_string(*filename);
     write_csv(filepath,listid);
 }
@@ -411,6 +417,9 @@ inline void executeCommand(Node* statement) {
         case GETL:
             command_getl(statement->children[0]->expression, (vector<long double>*)statement->children[1]->value);
             break;
+        case GETDIM:
+            command_getdim(statement->children[0]->expression, statement->children[1]->expression, (vector<vector<long double>*>*)statement->children[2]->value);
+            break;
         case XROOT:
             command_xroot(statement->children[0]->expression, statement->children[1]->expression, statement->children[2]->expression);
             break;
@@ -433,10 +442,10 @@ inline void executeCommand(Node* statement) {
             cout << endl;
             break;
         case READF:
-            command_readf((vector<long double>*)statement->children[0]->value, (string*)statement->children[1]->value);
+            command_readf((vector<vector<long double>*>*)statement->children[0]->value, (string*)statement->children[1]->value);
             break;
         case WRITEF:
-            command_writef((vector<long double>*)statement->children[0]->value, (string*)statement->children[1]->value);
+            command_writef((vector<vector<long double>*>*)statement->children[0]->value, (string*)statement->children[1]->value);
             break;
         case LDEF:
             command_ldef((vector<long double>*)statement->children[0]->value, (string*)statement->children[1]->value);
