@@ -62,6 +62,7 @@ enum TokenType {
     ACOS,
     ASIN,
     GETL,
+    GETDIM,
     FUNCT,
     CALL,
     XROOT,
