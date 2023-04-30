@@ -1,5 +1,5 @@
 <img src="images/squarebracket.png" alt="Logo" width="50%">
-<h1>SQBRA Interpreter <i>(Version 2.2.0 - Rapid Red Panda)</i></h1>
+<h1>SQBRA Interpreter <i>(Version 2.2.1 - Rapid Red Panda)</i></h1>
 <h2>Interpreter for the SquareBracket Programming Language</h2>
 <p>SquareBracket is a <b>simple programming language</b> designed to make the execution of small algorithms and math scripts easy. It has a syntax that is <b>easy to learn</b> and intuitive commands to perform mathematical operations, create variables, and control program flow. It is designed to be extensible and many <b>more functions will be added in future versions</b> to make it more powerful. With its focus on simplicity and ease of use, SquareBracket is a good choice for anyone looking to quickly and easily create and execute mathematical algorithms and scripts. Small bugs may still occur. The interpreter is lightweight and completely <b>implemented in C++</b>.</p>
 <h2>Usage</h2>
@@ -52,6 +52,8 @@
     <li><b> <span style="color:blue">loop</span> n do [ ... ]</b>: loop n times and execute the code in the indented block. The variable n is decremented each time.</li>
   <li><b><span style="color:blue">sloop</span> n do [ ... ]</b>: same as loop, but changes to the loop variable inside the code block do not affect the loop.</li>
   <li><b><span style="color:blue">if</span> (statement) [ ... ]</b>: execute the code in the indented block if the statement is true. The statement can use the following operators: = (equal), != (not equal), >= (greater or equal), <= (smaller or equal), > (greater), < (smaller). Example: if (x = 0) [set y 1].</li>
+   <li><b><span style="color:blue">elif</span> (statement) [ ... ]</b>: execute the code in the indented block if the previous if statement is false and the current statement is true. The statement can use the following operators: = (equal), != (not equal), >= (greater or equal), <= (smaller or equal), > (greater), < (smaller).</li>
+    <li><b><span style="color:blue">else</span> [ ... ]</b>: execute the code in the indented block if the previous if statement is false.</li>
   <li><b><span style="color:blue">while</span> (statement) [ ... ]</b>: execute the code in the indented block as long as the statement is true. The statement has the same syntax as in the if command.</li>
   <li><b><span style="color:blue">funct</span> identifier [ ... ]</b>: declare a void function without return value. The end of the corresponding code must be marked with a closing squarebracket in a single line.</li>
   <li><b><span style="color:blue">call</span> identifier</b>: execute a specific function without return value.</li>
@@ -70,7 +72,8 @@
   <ul>
   <li><b><span style="color:blue">print</span> ["string"]</b>: print a string and break a new line. Example: print ["Hello, world!"].</li>
   <li><b><span style="color:blue">printb</span> ["string"]</b>: same as print, but does not break a new line. Example: printb ["Hello, world!"].</li>
-  <li><b><span style="color:blue">printv</span> variable</b>: print the value of a variable and does not break a new line. Example: printv x.</li>
+  <li><b><span style="color:blue">printv</span> variable</b>: prints the value of a variable and does not break a new line. Example: printv x.</li>
+  <li><b><span style="color:blue">printm</span> variable</b>: prints the cells of a matrix and does not break a new line. Example: prints mymat.</li>
   <li><b><span style="color:blue">newl</span></b>: break a new line. Example: newl.</li>
   <li><b><span style="color:blue">input</span> variable ["string"]</b>: ask for user input and save it in the variable. The optional string is used as a prompt. Example: input x ["Please enter a number: "].</li>
   <li><b><span style="color:blue">readf</span> listname ["file.csv"]</b>: read a csv-file containing only a list. Example: readf list ["file.csv"]</li>
@@ -82,6 +85,7 @@
   <li><b><span style="color:blue">pop</span> var list</b>: remove the last value of the list and save it in var.</li>
   <li><b><span style="color:blue">chsl</span> list length</b>: change the size of an existing list.</li>
   <li><b><span style="color:blue">getl</span> variable name</b>: get the length of a list and save it in the variable. Example: getl len mylist.</li>
+  li><b><span style="color:blue">getdim</span> rows columns name</b>: get the dimensions of a matrix and save them in the variables. Example: getdim x y mymatrix.</li>
   <li><b><span style="color:blue">list</span>[index]</b>: access an element of a list. Example: set my_list[0] 42.</li>
   </ul>
   <h3>Basic Math Functions</h3>
