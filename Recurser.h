@@ -530,6 +530,7 @@ int execute(Node* node){
                 exit(0);
             }
             execute(funcs[*(string*)(node->children[0]->value)]);
+            if_state = false;
             break;
         case EXIT:
             exit(0);
