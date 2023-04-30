@@ -849,7 +849,7 @@ void printTree(Node* root, int level) {
 
 //! Print Information and Initiate Output of Tree
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 2.2.1) -- © 2023 Patrick De Smet" << endl << endl;
+    cout << "SquareBracket Parser (Version 2.2.2) -- © 2023 Patrick De Smet" << endl << endl;
     printTree(root, 0);
     cout << endl;
 }
