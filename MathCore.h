@@ -98,8 +98,13 @@ inline int precedence(char op) {
 
 
 inline string removeSpaces(string str) {
-    str.erase(remove(str.begin(), str.end(), ' '), str.end());
-    return str;
+    string newstr = "";
+    for (auto c : str){
+        if (c != ' '){
+            newstr.push_back(c);
+        }
+    }
+    return newstr;
 }
 
 // Check if the input string s represents a 2D matrix or a 1D list, and extract its indices
