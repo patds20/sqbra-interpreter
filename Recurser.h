@@ -82,7 +82,7 @@ inline void setVarListEntry(MathNode* varlist, long double value){
 //! Get the Value of a Variable, List or Matrix MathNode
 inline long double getVarListEntry(MathNode* varlist){
     if(varlist->type == MathNodeType::Variable){
-        return *(double*)varlist->variable;
+        return *(long double*)varlist->variable;
     }else if(varlist->type == MathNodeType::Array){
         auto list = reinterpret_cast<vector<long double>*>(varlist->variable);
         auto i = (int)(calculateExpression(varlist->left));
