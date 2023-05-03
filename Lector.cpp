@@ -2,7 +2,7 @@
 #define SQBRA_LECTOR_H
 
 /*
- *  LECTOR.H
+ *  LECTOR.CPP
  *  This file contains the lector function for the SquareBracket language.
  *  The lector checks the syntax of the tokens and shows potential errors.
  *  Copyright (c) 2023, Patrick De Smet
