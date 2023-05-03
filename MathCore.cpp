@@ -3,7 +3,7 @@
 #define SQBRA_MATHCORE_H
 
 /*
- *  MATHCORE.H
+ *  MATHCORE.CPP
  *  This file contains the parser, optimizer and calculator for mathematical expressions.
  *  These functions are vital for the parser and many functions.
  *  Copyright (c) 2023, Patrick De Smet
