@@ -1,11 +1,11 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include "Lexer.h"
-#include "Lector.h"
-#include "Parser.h"
-#include "FilesIO.h"
-#include "Recurser.h"
+#include "Lexer.cpp"
+#include "Lector.cpp"
+#include "Parser.cpp"
+#include "FilesIO.cpp"
+#include "Recurser.cpp"
 #include <cstring>
 
 using namespace std;
