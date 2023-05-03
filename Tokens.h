@@ -3,14 +3,14 @@
 #define SQBRA_TOKENS_H
 
 /*
- *  TOKENS.H
+ *  TOKENS.CPP
  *  This file defines the Node structure for tree and all the possible commands.
  *  Copyright (c) 2023, Patrick De Smet
  */
 
 #include <string>
 #include <vector>
-#include "MathCore.h"
+#include "MathCore.cpp"
 
 using namespace std;
 
