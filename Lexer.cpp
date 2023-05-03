@@ -3,7 +3,7 @@
 #define SQBRA_LEXER_H
 
 /*
- *  LEXER.H
+ *  LEXER.CPP
  *  This file contains the lexer and repair (fix) functions for the SquareBracket language.
  *  The lexer reads the raw code, tokenizes it and repairs small mistakes.
  *  Copyright (c) 2023, Patrick De Smet
