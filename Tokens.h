@@ -3,7 +3,7 @@
 #define SQBRA_TOKENS_H
 
 /*
- *  TOKENS.CPP
+ *  TOKENS.H
  *  This file defines the Node structure for tree and all the possible commands.
  *  Copyright (c) 2023, Patrick De Smet
  */
