@@ -3,7 +3,7 @@
 #define SQBRA_RECURSER_H
 
 /*
- *  RECURSER.H
+ *  RECURSER.CPP
  *  This file contains the execute function for the SquareBracket language.
  *  The function executes the parsed tree recursively and calls the specific command functions.
  *  Copyright (c) 2023, Patrick De Smet
@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <iterator>
 #include <random>
-#include "Tokens.h"
+#include "Tokens.cpp"
 
 // GLOBAL VARIABLES
 using namespace std;
