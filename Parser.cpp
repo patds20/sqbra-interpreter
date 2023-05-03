@@ -3,7 +3,7 @@
 #define SQBRA_PARSER_H
 
 /*
- *  PARSER.H
+ *  PARSER.CPP
  *  This file contains the parser and print functions for the SquareBracket language.
  *  The parser analyzes the tokens and creates a distinct tree which can be executed in the next step.
  *  Copyright (c) 2023, Patrick De Smet
@@ -12,8 +12,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Tokens.h"
-#include "MathCore.h"
+#include "Tokens.cpp"
+#include "MathCore.cpp"
 
 using namespace std;
 
