@@ -3,7 +3,7 @@
 #define SQBRA_FILESIO_H
 
 /*
- *  FILESIO.H
+ *  FILESIO.CPP
  *  This file contains commands for reading and writing files.
  *  Copyright (c) 2023, Patrick De Smet
  */
