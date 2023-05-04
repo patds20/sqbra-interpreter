@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Tokens.cpp"
+#include "Tokens.h"
 #include "MathCore.cpp"
 
 using namespace std;
