@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <iterator>
 #include <random>
-#include "Tokens.cpp"
+#include "Tokens.h"
 
 // GLOBAL VARIABLES
 using namespace std;
