@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <iterator>
 #include <random>
+#include <chrono>
 #include "Tokens.h"
 
 // GLOBAL VARIABLES
