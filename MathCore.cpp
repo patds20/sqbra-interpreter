@@ -1,7 +1,3 @@
-#pragma once
-#ifndef SQBRA_MATHCORE_H
-#define SQBRA_MATHCORE_H
-
 /*
  *  MATHCORE.CPP
  *  This file contains the parser, optimizer and calculator for mathematical expressions.
@@ -9,66 +5,32 @@
  *  Copyright (c) 2023, Patrick De Smet
  */
 
-#include <iostream>
-#include <string>
-#include <stack>
-#include <cmath>
-#include <unordered_map>
-#include <vector>
-#include <iterator>
+#include "Tokens.h"
 
-using namespace std;
+std::unordered_map<std::string, long double*> vars; // global map for all vars (only required during parsing)
+std::unordered_map<std::string, std::vector<long double>*> ars; // global map for all arrays (only required during parsing)
+std::unordered_map<std::string, std::vector<std::vector<long double>* >*> mars; // global map for all matrices (only required during parsing)
 
-unordered_map<string, long double*> vars; // global map for all vars
-unordered_map<string, vector<long double>*> ars; // global map for all arrays
-unordered_map<string, vector<vector<long double>* >*> mars; // global map for all matrices
-
-
-// Operator and MathNode Types
-enum class MathNodeType { Constant, Variable, Array, Matrix, Operator };
-enum class MathOperatorType { PLUS, MINUS, MULT, DIV, MOD, EXP, AND, OR, EQ, NEQ, LARGER, LARGEREQ, LESS, LESSEQ, NOTSET };
-
-MathOperatorType getOperatorType(const char c);
-
-struct MathNode {
-    MathNodeType type;
-    long double constant;
-    MathOperatorType opt;
-    void* variable;
-    MathNode* left;
-    MathNode* right;
-    MathNode(MathNodeType t, void* v) : type(t), variable(v), constant(0), left(nullptr), right(nullptr), opt(MathOperatorType::NOTSET) {}
-    MathNode(MathNodeType t, long double v) : type(t), constant(v), left(nullptr), right(nullptr), opt(MathOperatorType::NOTSET) {}
-    MathNode(MathNodeType t, MathOperatorType s) : type(t), variable(nullptr), constant(0), left(nullptr), right(nullptr), opt(s) {}
-};
-
-struct MathTypeReturn {
-    MathNodeType type;
-    string var;
-    string ind1;
-    string ind2;
-};
-
-inline void* getPointer(const string& str, MathNodeType type){
+inline void* getPointer(const std::string& str, MathNodeType type){
     if (type == MathNodeType::Variable) {
         if (vars.find(str) != vars.end()) {
             return vars[str];
         } else {
-            cerr << "Error: variable <" << str << "> is not defined." << endl;
+            std::cerr << "Error: variable <" << str << "> is not defined." << std::endl;
             exit(0);
         }
     } else if (type == MathNodeType::Array) {
         if (ars.find(str) != ars.end()) {
             return ars[str];
         } else {
-            cerr << "Error: list <" << str << "> is not defined." << endl;
+            std::cerr << "Error: list <" << str << "> is not defined." << std::endl;
             exit(0);
         }
     } else {
         if (mars.find(str) != mars.end()) {
             return mars[str];
         } else {
-            cerr << "Error: matrix <" << str << "> is not defined." << endl;
+            std::cerr << "Error: matrix <" << str << "> is not defined." << std::endl;
             exit(0);
         }
     }
@@ -96,19 +58,18 @@ inline int precedence(char op) {
     }
 }
 
-
-inline string removeSpaces(string str) {
-    string newstr = "";
-    for (auto c : str){
-        if (c != ' '){
-            newstr.push_back(c);
-        }
-    }
-    return newstr;
+inline std::string removeSpaces(std::string const& str) {
+   std::string retStr;
+   auto predicate = []( char ch )
+   {
+      return !std::isspace( ch );
+   };
+   std::copy_if( str.begin(), str.end(), std::back_inserter( retStr ), predicate );
+   return retStr;
 }
 
 // Check if the input string s represents a 2D matrix or a 1D list, and extract its indices
-inline MathTypeReturn determineType(string& str) {
+inline MathTypeReturn determineType(std::string& str) {
     int count = 0;
     int dimensions = 0;
     MathTypeReturn res;
@@ -141,22 +102,22 @@ inline MathTypeReturn determineType(string& str) {
     } else if(dimensions == 2){
         res.type = MathNodeType::Matrix;
     } else{
-        cerr << "Error: expression <" << str << "> is incorrect." << endl;
+        std::cerr << "Error: expression <" << str << "> is incorrect." << std::endl;
         exit(0);
     }
     return res;
 }
 
-MathNode* parseExpressionRaw(string expr) {
-    stack<MathNode*> nodeStack;
-    stack<char> opStack;
+MathNode* parseExpressionRaw(std::string expr) {
+    std::stack<MathNode*> nodeStack;
+    std::stack<char> opStack;
     int open_sqbr = 0;
 
     for (int i = 0; i < expr.size(); i++) {
         if (expr[i] == ' ') {
             continue;
         } else if (isdigit(expr[i]) || (expr[i] == '-' && (i == 0 || isOperator(expr[i-1]) || expr[i-1] == '(') || expr[i-1] == '[')) {
-            string number;
+            std::string number;
             while (i < expr.size() && (isdigit(expr[i]) || expr[i] == '.' || expr[i] == '-')) {
                 number += expr[i];
                 i++;
@@ -164,7 +125,7 @@ MathNode* parseExpressionRaw(string expr) {
             i--;
             nodeStack.push(new MathNode(MathNodeType::Constant, stod(number)));
         } else if (isalpha(expr[i])) {
-            string variable;
+            std::string variable;
             while (i < expr.size() && (isalpha(expr[i]) || isdigit(expr[i]) || expr[i] == '_' || (isOperator(expr[i]) && open_sqbr >= 1) || (expr[i] == '[' || expr[i] == ']') || (open_sqbr >= 1 && (expr[i] == '(' || expr[i] == ')')))) {
                 if(expr[i] == '['){
                     open_sqbr += 1;
@@ -274,29 +235,29 @@ long double calculateExpression(MathNode* root){
             return (calculateExpression(root->left) < calculateExpression(root->right));
         }
     }else if(root->type == MathNodeType::Array) {
-        auto list = reinterpret_cast<vector<long double>*>(root->variable);
+        auto list = reinterpret_cast<std::vector<long double>*>(root->variable);
         auto i = (int)(calculateExpression(root->left));
         if(list->size() > i){
             return (*list)[i];
         }else{
-            cerr << "Error: Index out of bounds for list <" << root->variable << "> at index <" << i << ">." << endl;
+            std::cerr << "Error: Index out of bounds for list <" << root->variable << "> at index <" << i << ">." << std::endl;
             exit(0);
         }
     }else if(root->type == MathNodeType::Matrix) {
-        auto mat = reinterpret_cast<vector<vector<long double>*>*>(root->variable);
+        auto mat = reinterpret_cast<std::vector<std::vector<long double>*>*>(root->variable);
         auto i1 = (int)(calculateExpression(root->left));
         auto i2 = (int)(calculateExpression(root->right));
         if(i1 < mat->size() && i2 < (*(*mat)[i1]).size()){
             return (*(*mat)[i1])[i2];
         }else{
-            cerr << "Error: Index out of bounds for matrix <" << root->variable << "> at indices <" << i1 << "," << i2 << ">." << endl;
+            std::cerr << "Error: Index out of bounds for matrix <" << root->variable << "> at indices <" << i1 << "," << i2 << ">." << std::endl;
             exit(0);
         }
     }
     return 0;
 }
 
-inline void replace_special_operators(string& input) {
+inline void replace_special_operators(std::string& input) {
     size_t pos = 0;
     while ((pos = input.find("<=", pos)) != std::string::npos) {
         input.replace(pos, 2, 1, (char)0x1d);
@@ -314,8 +275,7 @@ inline void replace_special_operators(string& input) {
     }
 }
 
-
-inline string getOperator(MathOperatorType type){
+std::string getOperator(MathOperatorType type){
     if(type == MathOperatorType::PLUS){
         return "ADD";
     }else if(type == MathOperatorType::MINUS){
@@ -479,7 +439,7 @@ void optimizeExpression(MathNode* root){
     }
 }
 
-bool checkExpression(const string& expr){
+bool checkExpression(const std::string& expr){
     int brackets = 0;
     int sqbrackets = 0;
     for(char i : expr){
@@ -501,34 +461,32 @@ bool checkExpression(const string& expr){
     return true;
 }
 
-MathNode* mathparse(const string& expr){
+MathNode* mathparse(const std::string& expr){
     if(checkExpression(expr)) {
-        string expr_ws = removeSpaces(expr);
+        std::string expr_ws = removeSpaces(expr);
         replace_special_operators(expr_ws);
         MathNode* expression = parseExpressionRaw(expr_ws);
         optimizeExpression(expression);
         return expression;
     }else{
-        cerr << "Error: <" << expr << "> expression is incorrect." << endl;
+        std::cerr << "Error: <" << expr << "> expression is incorrect." << std::endl;
         exit(0);
     }
 }
 
-MathNode* varparse(const string& expr){
+MathNode* varparse(const std::string& expr){
     if(checkExpression(expr)) {
-        string expr_ws = removeSpaces(expr);
+        std::string expr_ws = removeSpaces(expr);
         replace_special_operators(expr_ws);
         MathNode* expression = parseExpressionRaw(expr_ws);
         optimizeExpression(expression);
         if(expression->type == MathNodeType::Array || expression->type == MathNodeType::Variable || expression->type == MathNodeType::Matrix){
             return expression;
         }
-        cerr << "Error: <" << expr << "> must be only a variable or list entry." << endl;
+        std::cerr << "Error: <" << expr << "> must be only a variable or list entry." << std::endl;
         exit(0);
     }else{
-        cerr << "Error: <" << expr << "> variable or list entry are incorrect." << endl;
+        std::cerr << "Error: <" << expr << "> variable or list entry are incorrect." << std::endl;
         exit(0);
     }
 }
-
-#endif //SQBRA_MATHCORE_H
