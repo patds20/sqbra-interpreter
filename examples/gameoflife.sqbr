@@ -1,0 +1,120 @@
+# ###################################################################################
+# Game Of Life in SquareBracket (2.3.0)                                             #
+# by Patrick De Smet - 2023                                                         #
+# ###################################################################################
+# The game is played on a random 50x50 field.                                       #
+# It contains a '0' as integer for a dead cell and a '1' for a living cell.         #
+# The program is given the number of iterations as argument in CLI.                 #
+# ###################################################################################
+
+# DEFINE THE FIELD, A TEMPORARY FIELD, A STACK FOR THE FUNCTION CALLS AND SEVERAL VARIABLES
+cmat field 50 50
+cmat tmp_field 50 50
+clist fstack 0
+mvar c_1 c_2 x y r count state 0
+
+# DEFINE A RANDOM FIELD
+autoloop x 50 do [
+    autoloop y 50 do [
+        random r 0 1
+        if (r > 0.5) [
+            set r 1
+        ]
+        else [
+            set r 0
+        ]
+        set field[x-1][y-1] r
+    ]
+]
+
+# FUNCTION CALCULATESTATE -> checks for each cell whether it survives or not
+funct calculatestate [
+    pop y fstack
+    pop x fstack
+    set count 0
+
+    # IF STATEMENTS COUNT LIVING CELLS AROUND X,Y
+    if (((x < 49) & (x > 0)) & ((y < 49) & (y > 0))) [
+        if (field[x-1][y-1]) [
+            inc count
+        ]
+        if (field[x-1][y]) [
+            inc count
+        ]
+        if (field[x-1][y+1]) [
+            inc count
+        ]
+        if (field[x][y-1]) [
+            inc count
+        ]
+        if (field[x][y+1]) [
+            inc count
+        ]
+        if (field[x+1][y-1]) [
+            inc count
+        ]
+        if (field[x+1][y]) [
+            inc count
+        ]
+        if (field[x+1][y+1]) [
+            inc count
+       ]
+    ]
+
+    # CHECK WHICH RULE APPLIES AND SET VARIABLE STATE
+    if (count < 2 | count > 4) [
+        set state 0
+    ]
+    elif ((count = 2 & field[x][y] > 0) | (count = 3)) [
+        set state 1
+    ]
+    else [
+        set state 0
+    ]
+]
+
+# FUNCTION COPYFIELD -> applies the changes from the temporary field
+funct copyfield [
+    autoloop c_1 50 do [
+        autoloop c_2 50 do [
+            set field[c_1-1][c_2-1] tmp_field[c_1-1][c_2-1]
+        ]
+    ]
+]
+
+# FUNCTION PRINTFIELD -> prints the field with "-" and "#"
+funct printfield [
+    newl
+    autoloop c_1 50 do [
+        autoloop c_2 50 do [
+            if (field[c_1-1][c_2-1] = 0)[
+                printb ["."]
+            ]
+            else [
+                printb ["#"]
+            ]
+            printb [" "]
+        ]
+        newl
+    ]
+]
+
+# MAIN LOOP -> calculates the state of the field after 'args[0]' iterations
+sloop args[0] do [
+    autoloop c_1 50 do [
+        autoloop c_2 50 do [
+            push (c_1-1) fstack
+            push (c_2-1) fstack
+            call calculatestate
+            if (state = 1) [
+                set tmp_field[c_1-1][c_2-1] 1
+            ]
+            else [
+                set tmp_field[c_1-1][c_2-1] 0
+            ]
+        ]
+    ]
+    call copyfield
+    call printfield
+    sleep 45
+]
