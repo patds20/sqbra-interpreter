@@ -1,7 +1,3 @@
-#pragma once
-#ifndef SQBRA_LEXER_H
-#define SQBRA_LEXER_H
-
 /*
  *  LEXER.CPP
  *  This file contains the lexer and repair (fix) functions for the SquareBracket language.
@@ -9,24 +5,18 @@
  *  Copyright (c) 2023, Patrick De Smet
  */
 
-#include <vector>
-#include <string>
-#include <sstream>
+#include "Lexer.h"
 
-using namespace std;
-
-#include <string>
-
-vector<vector<string> > lexer(const string& input) {
-    vector<vector<string> > result;
-    string line;
-    stringstream ss(input);
+std::vector<std::vector<std::string> > lexer(const std::string& input) {
+    std::vector<std::vector<std::string> > result;
+    std::string line;
+    std::stringstream ss(input);
     while (getline(ss, line)) {
         if (line.empty()) {
             continue;
         }
-        vector<string> tokens;
-        string token;
+        std::vector<std::string> tokens;
+        std::string token;
         int bracket_count = 0;
         bool in_sqbra = false;
         for (char c : line) {
@@ -50,7 +40,7 @@ vector<vector<string> > lexer(const string& input) {
                     token = "";
                 }
             } else if (c == '\r') {
-                cerr << "Error: SQBRA does not accept CRLF line endings." << endl;
+                std::cerr << "Error: SQBRA does not accept CRLF line endings." << std::endl;
                 exit(0);
             } else if (c == '[') {
                 in_sqbra = true;
@@ -72,7 +62,7 @@ vector<vector<string> > lexer(const string& input) {
 
 void fix_while_syntax(std::vector<std::string> *if_strings) {
     if(if_strings[0][0] != "while"){
-        string pStr = if_strings[0][0].substr (5);
+        std::string pStr = if_strings[0][0].substr (5);
         if_strings->erase(if_strings->begin());
         if_strings->insert(if_strings->begin(), pStr);
         if_strings->insert(if_strings->begin(), "while");
@@ -81,7 +71,7 @@ void fix_while_syntax(std::vector<std::string> *if_strings) {
 
 void fix_if_syntax(std::vector<std::string> *if_strings) {
     if(if_strings[0][0] != "if"){
-        string pStr = if_strings[0][0].substr (2);
+        std::string pStr = if_strings[0][0].substr (2);
         if_strings->erase(if_strings->begin());
         if_strings->insert(if_strings->begin(), pStr);
         if_strings->insert(if_strings->begin(), "if");
@@ -90,7 +80,7 @@ void fix_if_syntax(std::vector<std::string> *if_strings) {
 
 void fix_elif_syntax(std::vector<std::string> *elif_strings) {
     if(elif_strings[0][0] != "elif"){
-        string pStr = elif_strings[0][0].substr (4);
+        std::string pStr = elif_strings[0][0].substr (4);
         elif_strings->erase(elif_strings->begin());
         elif_strings->insert(elif_strings->begin(), pStr);
         elif_strings->insert(elif_strings->begin(), "elif");
@@ -99,7 +89,7 @@ void fix_elif_syntax(std::vector<std::string> *elif_strings) {
 
 void fix_else_syntax(std::vector<std::string> *else_strings) {
     if(else_strings[0][0] != "else"){
-        string pStr = else_strings[0][0].substr (4);
+        std::string pStr = else_strings[0][0].substr (4);
         else_strings->erase(else_strings->begin());
         else_strings->insert(else_strings->begin(), pStr);
         else_strings->insert(else_strings->begin(), "else");
@@ -108,7 +98,7 @@ void fix_else_syntax(std::vector<std::string> *else_strings) {
 
 void fix_printb_syntax(std::vector<std::string> *print_strings) {
     if(print_strings[0][0] != "printb"){
-        string pStr = print_strings[0][0].substr (6);
+        std::string pStr = print_strings[0][0].substr (6);
         print_strings->erase(print_strings->begin());
         print_strings->insert(print_strings->begin(), pStr);
         print_strings->insert(print_strings->begin(), "printb");
@@ -117,7 +107,7 @@ void fix_printb_syntax(std::vector<std::string> *print_strings) {
 
 void fix_print_syntax(std::vector<std::string> *print_strings) {
     if(print_strings[0][0] != "print"){
-        string pStr = print_strings[0][0].substr (5);
+        std::string pStr = print_strings[0][0].substr (5);
         print_strings->erase(print_strings->begin());
         print_strings->insert(print_strings->begin(), pStr);
         print_strings->insert(print_strings->begin(), "print");
@@ -153,5 +143,3 @@ void repairTokens(std::vector<std::vector<std::string> > *strings) {
         }
     }// turn all alpha chars to lowercase
 } // prepare tokens for parsing
-
-#endif //SQBRA_LEXER_H
