@@ -865,7 +865,7 @@ void printTree(Node* root, int level) {
 
 //! Print Information and Initiate Output of Tree
 void printTreeRoot(Node* root){
-    std::cout << "SquareBracket Parser (Version 2.2.2) -- © 2023 Patrick De Smet" << std::endl << std::endl;
+    std::cout << "SquareBracket Parser (Version 2.2.3) -- © 2023 Patrick De Smet" << std::endl << std::endl;
     printTree(root, 0);
     std::cout << std::endl;
 }
