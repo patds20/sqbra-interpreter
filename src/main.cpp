@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     path_to_code = parse_inputcommand(argc, argv, pt, c, v, inp);
 
     if (v) {
-        std::cout << "SquareBracket Interpreter (Version 2.2.2 -- Rapid Red Panda / 2023)" << std::endl;
+        std::cout << "SquareBracket Interpreter (Version 2.2.3 -- Rapid Red Panda / 2023)" << std::endl;
         exit(0);
     }
     // CHECK WHETHER CODE IS AVAILABLE
