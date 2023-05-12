@@ -1,7 +1,3 @@
-#pragma once
-#ifndef SQBRA_RECURSER_H
-#define SQBRA_RECURSER_H
-
 /*
  *  RECURSER.CPP
  *  This file contains the execute function for the SquareBracket language.
@@ -9,23 +5,12 @@
  *  Copyright (c) 2023, Patrick De Smet
  */
 
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <cmath>
-#include <stack>
-#include <string>
-#include <sstream>
-#include <cctype>
-#include <algorithm>
-#include <iterator>
-#include <random>
+#include "Recurser.h"
 #include <chrono>
-#include "Tokens.h"
+#include <thread>
 
 // GLOBAL VARIABLES
-using namespace std;
-unordered_map<string, Node*> funcs; // global map for all functions
+std::unordered_map<std::string, Node*> funcs; // global map for all functions
 bool if_state = false; // was the previous if or elif false --> enables execution of next elif or else
 
 int execute(Node* node);
@@ -33,8 +18,8 @@ int execute(Node* node);
 // DEFINED CONSTANTS ################################################################
 
 //! Predefined Constants
-inline void load_math_const(){
-    auto predefined = new vector<long double>(7);
+void load_math_const(){
+    auto predefined = new std::vector<long double>(7);
     (*predefined)[0] = 3.14159265358979323846264338327;
     (*predefined)[1] = 2.7182818284590452353602874713527;
     (*predefined)[2] = 1.414213562373095048801688724209698078569;
@@ -59,25 +44,36 @@ inline void setVarListEntry(MathNode* varlist, long double value){
     if(varlist->type == MathNodeType::Variable){
         *(long double*)varlist->variable = value;
     }else if(varlist->type == MathNodeType::Array){
-        auto list = reinterpret_cast<vector<long double>*>(varlist->variable);
+        auto list = reinterpret_cast<std::vector<long double>*>(varlist->variable);
         auto i = (int)(calculateExpression(varlist->left));
         if(list->size() > i){
             (*list)[i] = value;
         }else{
-            cerr << "Error: Index out of bounds for list <" << varlist->variable << "> at index <" << i << ">." << endl;
+            std::cerr << "Error: Index out of bounds for list <" << varlist->variable << "> at index <" << i << ">." << std::endl;
             exit(0);
         }
     }else{
-        auto mat = reinterpret_cast<vector<vector<long double>*>*>(varlist->variable);
+        auto mat = reinterpret_cast<std::vector<std::vector<long double>*>*>(varlist->variable);
         auto i1 = (int)(calculateExpression(varlist->left));
         auto i2 = (int)(calculateExpression(varlist->right));
         if(i1 < mat->size() && i2 < (*(*mat)[i1]).size()){
             (*(*mat)[i1])[i2] = value;
         }else{
-            cerr << "Error: Index out of bounds for matrix <" << varlist->variable << "> at indices <" << i1 << "," << i2 << ">." << endl;
+            std::cerr << "Error: Index out of bounds for matrix <" << varlist->variable << "> at indices <" << i1 << "," << i2 << ">." << std::endl;
             exit(0);
         }
     }
+}
+
+//! Remove Spaces in a String
+inline std::string removeSpaces(std::string const& str) {
+   std::string retStr;
+   auto predicate = []( char ch )
+   {
+      return !std::isspace( ch );
+   };
+   std::copy_if( str.begin(), str.end(), std::back_inserter( retStr ), predicate );
+   return retStr;
 }
 
 //! Get the Value of a Variable, List or Matrix MathNode
@@ -85,22 +81,22 @@ inline long double getVarListEntry(MathNode* varlist){
     if(varlist->type == MathNodeType::Variable){
         return *(long double*)varlist->variable;
     }else if(varlist->type == MathNodeType::Array){
-        auto list = reinterpret_cast<vector<long double>*>(varlist->variable);
+        auto list = reinterpret_cast<std::vector<long double>*>(varlist->variable);
         auto i = (int)(calculateExpression(varlist->left));
         if(list->size() > i){
             return (*list)[i];
         }else{
-            cerr << "Error: Index out of bounds for list <" << varlist->variable << "> at index <" << i << ">." << endl;
+            std::cerr << "Error: Index out of bounds for list <" << varlist->variable << "> at index <" << i << ">." << std::endl;
             exit(0);
         }
     }else{
-        auto mat = reinterpret_cast<vector<vector<long double>*>*>(varlist->variable);
+        auto mat = reinterpret_cast<std::vector<std::vector<long double>*>*>(varlist->variable);
         auto i1 = (int)(calculateExpression(varlist->left));
         auto i2 = (int)(calculateExpression(varlist->right));
         if(i1 < mat->size() && i2 < (*(*mat)[i1]).size()){
             return (*(*mat)[i1])[i2];
         }else{
-            cerr << "Error: Index out of bounds for matrix <" << varlist->variable << "> at indices <" << i1 << "," << i2 << ">." << endl;
+            std::cerr << "Error: Index out of bounds for matrix <" << varlist->variable << "> at indices <" << i1 << "," << i2 << ">." << std::endl;
             exit(0);
         }
     }
@@ -119,7 +115,7 @@ inline void command_cvar(long double* varname, MathNode* expression){
 }
 
 //! Command: Define Multiple Variables (MVAR)
-inline void command_mvar(vector<long double*>* variables, MathNode* val){
+inline void command_mvar(std::vector<long double*>* variables, MathNode* val){
     long double tmp_val = calculateExpression(val);
     for(long double* svars : *variables){
         *svars = tmp_val;
@@ -127,14 +123,14 @@ inline void command_mvar(vector<long double*>* variables, MathNode* val){
 }
 
 //! Command: Define A List (CLIST)
-inline void command_clist(vector<long double>* listid, MathNode* expression){
+inline void command_clist(std::vector<long double>* listid, MathNode* expression){
     listid->resize((int)calculateExpression(expression));
 }
 
 //! Command: Define A Matrix (CMAT)
-inline void command_cmat(vector<vector<long double>* >* matid, MathNode* dim1, MathNode* dim2){
+inline void command_cmat(std::vector<std::vector<long double>* >* matid, MathNode* dim1, MathNode* dim2){
     for(int i = 0; i < (int)calculateExpression(dim1); i++){
-        auto vct = new vector<long double>((int)calculateExpression(dim2));
+        auto vct = new std::vector<long double>((int)calculateExpression(dim2));
         matid->push_back(vct);
     }
 }
@@ -166,29 +162,29 @@ inline void command_round(MathNode* varlist, MathNode* precision){
 }
 
 //! Command: Print String and Break Line (PRINT)
-inline void command_print(const string& stri){
-    string str = extract_string(stri);
-    cout << str << endl;
+inline void command_print(const std::string& stri){
+    std::string str = extract_string(stri);
+    std::cout << str << std::endl;
 }
 
 //! Command: Print String Without Breaking The Line (PRINTB)
-inline void command_printb(const string& stri){
-    string str = extract_string(stri);
-    cout << str;
+inline void command_printb(const std::string& stri){
+    std::string str = extract_string(stri);
+    std::cout << str;
 }
 
 //! Command: Print Value of Variable (PRINTV)
 inline void command_printv(MathNode* expression) {
-    cout << calculateExpression(expression); // print output of processed expression
+    std::cout << calculateExpression(expression); // print output of processed expression
 }
 
 //! Command: Print Matrix to Screen (PRINTM)
-inline void command_printm(vector<vector<long double>*>* matrix) {
+inline void command_printm(std::vector<std::vector<long double>*>* matrix) {
     for(auto row : *matrix){
         for(auto val : *row){
-            cout << val << " ";
+            std::cout << val << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 }
 
@@ -205,7 +201,7 @@ inline void command_dec(MathNode* varlist) {
 //! Command: Get Input from CLI and Save to Variable (INPUT)
 inline void command_input(MathNode* varlist) {
     long double inputval;
-    cin >> inputval;
+    std::cin >> inputval;
     setVarListEntry(varlist, inputval);
 }
 
@@ -227,19 +223,19 @@ inline void command_trig(MathNode* varlist, MathNode* source, TokenType func){
         outVal = (cos(inpVal)/sin(inpVal));
     }else if(func == ASIN){
         if(inpVal > 1 || inpVal < -1){
-            cerr << "Error: <" << varlist->variable << "> asin only accepts values from 1 to -1" << endl;
+            std::cerr << "Error: <" << varlist->variable << "> asin only accepts values from 1 to -1" << std::endl;
             exit(0); // terminate program
         }
         outVal = asin(inpVal);
     }else if(func == ACOS){
         if(inpVal > 1 || inpVal < -1){
-            cerr << "Error: <" << varlist->variable << "> acos only accepts values from 1 to -1" << endl;
+            std::cerr << "Error: <" << varlist->variable << "> acos only accepts values from 1 to -1" << std::endl;
             exit(0); // terminate program
         }
         outVal = acos(inpVal);
     }else if(func == ATAN){
         if(inpVal > 1 || inpVal < -1){
-            cerr << "Error: <" << varlist->variable << "> atan only accepts values from 1 to -1" << endl;
+            std::cerr << "Error: <" << varlist->variable << "> atan only accepts values from 1 to -1" << std::endl;
             exit(0); // terminate program
         }
         outVal = atan(inpVal);
@@ -248,12 +244,12 @@ inline void command_trig(MathNode* varlist, MathNode* source, TokenType func){
 }
 
 //! Command: Save the Length of a List (GETL)
-inline void command_getl(MathNode* varlist, vector<long double>* listid){
+inline void command_getl(MathNode* varlist, std::vector<long double>* listid){
     setVarListEntry(varlist, (long double)listid->size());
 }
 
 //! Command: Save the Dimensions of a Matrix (GETDIM)
-inline void command_getdim(MathNode* rows, MathNode* columns, vector<vector<long double>*>* listid){
+inline void command_getdim(MathNode* rows, MathNode* columns, std::vector<std::vector<long double>*>* listid){
     setVarListEntry(rows, (long double)listid->size());
     setVarListEntry(columns, (long double)((*listid)[0])->size());
 }
@@ -275,53 +271,53 @@ inline void command_log(MathNode* varlist, MathNode* source, MathNode* exp){ //H
 }
 
 //! Command: Declare a Void Function Without Parameters (FUNCT)
-inline void command_declarefunct(const string& identifier, Node* exec_block){
+inline void command_declarefunct(const std::string& identifier, Node* exec_block){
     if(funcs.find(identifier) == funcs.end()){
         funcs[identifier] = exec_block;
     }else{
-        cerr << "Error: function <" << identifier << "> is aleady defined" << endl;
+        std::cerr << "Error: function <" << identifier << "> is aleady defined" << std::endl;
         exit(0); // terminate program
     }
 }
 
 //! Command: Pop The Last Value Of a List And Save It To a Variable(POP)
-inline void command_poplist(MathNode* varlist, vector<long double>* listid){
+inline void command_poplist(MathNode* varlist, std::vector<long double>* listid){
     setVarListEntry(varlist, listid->back());
     listid->pop_back();
 }
 
 //! Command: Push A Specific Value to A List (PUSH)
-inline void command_pushlist(MathNode* expr, vector<long double>* listid){
+inline void command_pushlist(MathNode* expr, std::vector<long double>* listid){
     long double val = calculateExpression(expr);
     listid->push_back(val);
 }
 
 //! Command: Change The Size of A List (CHSL)
-inline void command_chsl(MathNode* expr, vector<long double>* listid){
+inline void command_chsl(MathNode* expr, std::vector<long double>* listid){
     int new_l = (int)calculateExpression(expr);
     listid->resize(new_l);
 }
 
 //! Command: Define a List With Predefined Values (LDEF)
-inline void command_ldef(vector<long double>* listid, string* stri){
-    string content = removeSpaces(extract_list_string(*stri));
+inline void command_ldef(std::vector<long double>* listid, std::string* stri){
+    std::string content = removeSpaces(extract_list_string(*stri));
     parse_numbers(content,listid);
 }
 
 //! Command: Define a Matrix With Predefined Values (MDEF)
-inline void command_mdef(vector<vector<long double>* >* matid, string* stri){
+inline void command_mdef(std::vector<std::vector<long double>* >* matid, std::string* stri){
     parse_matrix(*stri,matid);
 }
 
 //! Command: Read a CSV File and Save it to a Matrix (READF)
-inline void command_readf(vector<vector<long double>*>* listid, string* filename){
-    string filepath = extract_string(*filename);
+inline void command_readf(std::vector<std::vector<long double>*>* listid, std::string* filename){
+    std::string filepath = extract_string(*filename);
     read_csv(filepath,listid);
 }
 
 //! Command: Write a Matrix to a CSV File (WRITEF)
-inline void command_writef(vector<vector<long double>*>* listid, string* filename){
-    string filepath = extract_string(*filename);
+inline void command_writef(std::vector<std::vector<long double>*>* listid, std::string* filename){
+    std::string filepath = extract_string(*filename);
     write_csv(filepath,listid);
 }
 
@@ -332,6 +328,11 @@ inline void command_random(MathNode* varlist, MathNode* max, MathNode* min){
     std::mt19937_64 eng(seed);
     std::uniform_real_distribution<long double> distr(calculateExpression(min), calculateExpression(max));
     setVarListEntry(varlist,distr(eng));
+}
+
+//! Command: Sleep for a defined amount of ms (SLEEP)
+inline void command_sleep(MathNode* expr){
+    std::this_thread::sleep_for(std::chrono::milliseconds(size_t(calculateExpression(expr))));
 }
 
 // MAIN FUNCTIONS FOR THE EXECUTION OF COMMANDS
@@ -346,16 +347,16 @@ inline void executeCommand(Node* statement) {
             command_set(statement->children[0]->expression, statement->children[1]->expression);
             break;
         case PRINT:
-            command_print(*(string*)statement->children[0]->value);
+            command_print(*(std::string*)statement->children[0]->value);
             break;
         case PRINTB:
-            command_printb(*(string*)statement->children[0]->value);
+            command_printb(*(std::string*)statement->children[0]->value);
             break;
         case PRINTV:
             command_printv(statement->children[0]->expression);
             break;
         case PRINTM:
-            command_printm((vector<vector<long double>* >*)statement->children[0]->value);
+            command_printm((std::vector<std::vector<long double>* >*)statement->children[0]->value);
             break;
         case DEC:
             command_dec(statement->children[0]->expression);
@@ -364,17 +365,17 @@ inline void executeCommand(Node* statement) {
             command_inc(statement->children[0]->expression);
             break;
         case CLIST:
-            command_clist((vector<long double>*)statement->children[0]->value, statement->children[1]->expression);
+            command_clist((std::vector<long double>*)statement->children[0]->value, statement->children[1]->expression);
             break;
         case CMAT:
-            command_cmat((vector<vector<long double>* >*)statement->children[0]->value, statement->children[1]->expression, statement->children[2]->expression);
+            command_cmat((std::vector<std::vector<long double>* >*)statement->children[0]->value, statement->children[1]->expression, statement->children[2]->expression);
             break;
         case INPUT:
-            command_printb(*(string*)statement->children[1]->value);
+            command_printb(*(std::string*)statement->children[1]->value);
             command_input(statement->children[0]->expression);
             break;
         case MVAR:
-            command_mvar((vector<long double*>*)statement->children[0]->value, statement->children[1]->expression);
+            command_mvar((std::vector<long double*>*)statement->children[0]->value, statement->children[1]->expression);
             break;
         case ROUND:
             command_round(statement->children[0]->expression, statement->children[1]->expression);
@@ -416,10 +417,10 @@ inline void executeCommand(Node* statement) {
             command_trig(statement->children[0]->expression, statement->children[1]->expression, ATAN);
             break;
         case GETL:
-            command_getl(statement->children[0]->expression, (vector<long double>*)statement->children[1]->value);
+            command_getl(statement->children[0]->expression, (std::vector<long double>*)statement->children[1]->value);
             break;
         case GETDIM:
-            command_getdim(statement->children[0]->expression, statement->children[1]->expression, (vector<vector<long double>*>*)statement->children[2]->value);
+            command_getdim(statement->children[0]->expression, statement->children[1]->expression, (std::vector<std::vector<long double>*>*)statement->children[2]->value);
             break;
         case XROOT:
             command_xroot(statement->children[0]->expression, statement->children[1]->expression, statement->children[2]->expression);
@@ -428,34 +429,37 @@ inline void executeCommand(Node* statement) {
             command_log(statement->children[0]->expression, statement->children[1]->expression, statement->children[2]->expression);
             break;
         case FUNCT:
-            command_declarefunct(*(string*)statement->children[0]->value, statement->children[1]);
+            command_declarefunct(*(std::string*)statement->children[0]->value, statement->children[1]);
             break;
         case PUSH:
-            command_pushlist(statement->children[0]->expression,(vector<long double>*)statement->children[1]->value);
+            command_pushlist(statement->children[0]->expression,(std::vector<long double>*)statement->children[1]->value);
             break;
         case POP:
-            command_poplist(statement->children[0]->expression,(vector<long double>*)statement->children[1]->value);
+            command_poplist(statement->children[0]->expression,(std::vector<long double>*)statement->children[1]->value);
             break;
         case CHSL:
-            command_chsl(statement->children[1]->expression,(vector<long double>*)statement->children[0]->value);
+            command_chsl(statement->children[1]->expression,(std::vector<long double>*)statement->children[0]->value);
             break;
         case NEWL:
-            cout << endl;
+            std::cout << std::endl;
             break;
         case READF:
-            command_readf((vector<vector<long double>*>*)statement->children[0]->value, (string*)statement->children[1]->value);
+            command_readf((std::vector<std::vector<long double>*>*)statement->children[0]->value, (std::string*)statement->children[1]->value);
             break;
         case WRITEF:
-            command_writef((vector<vector<long double>*>*)statement->children[0]->value, (string*)statement->children[1]->value);
+            command_writef((std::vector<std::vector<long double>*>*)statement->children[0]->value, (std::string*)statement->children[1]->value);
             break;
         case LDEF:
-            command_ldef((vector<long double>*)statement->children[0]->value, (string*)statement->children[1]->value);
+            command_ldef((std::vector<long double>*)statement->children[0]->value, (std::string*)statement->children[1]->value);
             break;
         case MDEF:
-            command_mdef((vector<vector<long double>* >*)statement->children[0]->value, (string*)statement->children[1]->value);
+            command_mdef((std::vector<std::vector<long double>* >*)statement->children[0]->value, (std::string*)statement->children[1]->value);
             break;
         case RANDOM:
             command_random(statement->children[0]->expression,statement->children[1]->expression,statement->children[2]->expression);
+            break;
+        case SLEEP:
+            command_sleep(statement->children[0]->expression);
             break;
     }
 }
@@ -475,6 +479,15 @@ int execute(Node* node){
         case LOOP:
             while (getVarListEntry(node->children[0]->expression) > 0) {
                 if (execute(node->children[1]) == -1) {
+                    return -1;
+                }
+                setVarListEntry(node->children[0]->expression, getVarListEntry(node->children[0]->expression)-1);
+            }
+            break;
+        case AUTOLOOP:
+            setVarListEntry(node->children[0]->expression, calculateExpression(node->children[1]->expression));
+            while (getVarListEntry(node->children[0]->expression) > 0) {
+                if (execute(node->children[2]) == -1) {
                     return -1;
                 }
                 setVarListEntry(node->children[0]->expression, getVarListEntry(node->children[0]->expression)-1);
@@ -526,11 +539,11 @@ int execute(Node* node){
             }
             break;
         case CALL:
-            if(funcs.find(*((string*)node->children[0]->value)) == funcs.end()){
-                cerr << "Error: function <" << node->children[0]->value << "> is not defined" << endl;
+            if(funcs.find(*((std::string*)node->children[0]->value)) == funcs.end()){
+                std::cerr << "Error: function <" << node->children[0]->value << "> is not defined" << std::endl;
                 exit(0);
             }
-            execute(funcs[*(string*)(node->children[0]->value)]);
+            execute(funcs[*(std::string*)(node->children[0]->value)]);
             if_state = false;
             break;
         case EXIT:
@@ -544,5 +557,3 @@ int execute(Node* node){
     }
     return 0;
 }
-
-#endif //SQBRA_RECURSER_H
