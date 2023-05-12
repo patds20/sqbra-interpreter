@@ -1,7 +1,3 @@
-#pragma once
-#ifndef SQBRA_PARSER_H
-#define SQBRA_PARSER_H
-
 /*
  *  PARSER.CPP
  *  This file contains the parser and print functions for the SquareBracket language.
@@ -9,31 +5,25 @@
  *  Copyright (c) 2023, Patrick De Smet
  */
 
-#include <string>
-#include <vector>
-#include <iostream>
 #include "Tokens.h"
-#include "MathCore.cpp"
-
-using namespace std;
 
 int rLine = -1; // this variable tells the parser where to continue after an indented block
 
 //! Create a Single Variable
-long double* makeVarEntry(const string& str){
+long double* makeVarEntry(const std::string& str){
     if (vars.find(str) == vars.end()){
         long double* newVar = (long double*)malloc(sizeof(long double));
         vars[str] = newVar;
         return newVar;
     } else {
-        cerr << "Error: variable <" << str << "> is already defined." << endl;
+        std::cerr << "Error: variable <" << str << "> is already defined." << std::endl;
         exit(0);
     }
 }
 
 //! Create Multiple Variables at Once
-vector<long double*>* makeMultipleVarEntries(const string& str){
-    auto* tmpVec = new vector<long double*>;
+std::vector<long double*>* makeMultipleVarEntries(const std::string& str){
+    auto* tmpVec = new std::vector<long double*>;
     std::istringstream iss(str);
     std::vector<std::string> words;
     for (std::string word; iss >> word; ) {
@@ -46,45 +36,45 @@ vector<long double*>* makeMultipleVarEntries(const string& str){
 }
 
 //! Create a New List and Return Pointer
-vector<long double>* makeListEntry(const string& str){
+std::vector<long double>* makeListEntry(const std::string& str){
     if (ars.find(str) == ars.end()){
-        auto newArr = new vector<long double>;
+        auto newArr = new std::vector<long double>;
         ars[str] = newArr;
         return newArr;
     } else {
-        cerr << "Error: list <" << str << "> is already defined." << endl;
+        std::cerr << "Error: list <" << str << "> is already defined." << std::endl;
         exit(0);
     }
 }
 
 //! Get Pointer for List from String
-vector<long double>* getListEntry(const string& str){
+std::vector<long double>* getListEntry(const std::string& str){
     if (ars.find(str) != ars.end()) {
         return ars[str];
     } else {
-        cerr << "Error: list <" << str << "> is not defined." << endl;
+        std::cerr << "Error: list <" << str << "> is not defined." << std::endl;
         exit(0);
     }
 }
 
 //! Create a New Empty Matrix and Return Pointer
-vector<vector<long double>* >* makeMatrixEntry(const string& str){
+std::vector<std::vector<long double>* >* makeMatrixEntry(const std::string& str){
     if (mars.find(str) == mars.end()){
-        auto newMat = new vector<vector<long double>* >;
+        auto newMat = new std::vector<std::vector<long double>* >;
         mars[str] = newMat;
         return newMat;
     } else {
-        cerr << "Error: matrix <" << str << "> is already defined." << endl;
+        std::cerr << "Error: matrix <" << str << "> is already defined." << std::endl;
         exit(0);
     }
 }
 
 //! Get Pointer for Matrix from String
-vector<vector<long double>* >* getMatrixEntry(const string& str){
+std::vector<std::vector<long double>* >* getMatrixEntry(const std::string& str){
     if (mars.find(str) != mars.end()) {
         return mars[str];
     } else {
-        cerr << "Error: matrix <" << str << "> is not defined." << endl;
+        std::cerr << "Error: matrix <" << str << "> is not defined." << std::endl;
         exit(0);
     }
 }
@@ -102,7 +92,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             currentLine++;
             continue;
         }
-        vector<string> line = tokens[currentLine];
+        std::vector<std::string> line = tokens[currentLine];
         if(line[0] == "#"){
             currentLine++;
             continue;
@@ -148,7 +138,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
         } else if (value == "mvar") {
             type = MVAR;
             tmpNod1->type = VARIABLES;
-            string apStr;
+            std::string apStr;
             for(int i = 1; i < line.size() - 1; i++){
                 if(i < line.size() - 2){
                     apStr.append(line[i]);
@@ -179,7 +169,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod1->type = VARLIST;
             tmpNod1->expression = vrl;
             tmpNod2->type = STRING;
-            string* pStr = new string;
+            std::string* pStr = new std::string;
             for(int i = 2; i < line.size(); i++){
                 if(i < line.size() - 1){
                     pStr->append(line[i] + " ");
@@ -200,10 +190,24 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             currentLine = rLine;
             child->children.push_back(tmpNod1);
             child->children.push_back(tmpNod2);
+        } else if (value == "autoloop") {
+            type = AUTOLOOP;
+            MathNode* vrl1 = varparse(line[1]);
+            tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl1;
+            MathNode* vrl2 = mathparse(line[2]);
+            tmpNod2->type = EXPRESSION;
+            tmpNod2->expression = vrl2;
+            tmpNod3->type = EXEC;
+            tmpNod3->children = parseTree(tokens,  currentLine + 1)->children;
+            currentLine = rLine;
+            child->children.push_back(tmpNod1);
+            child->children.push_back(tmpNod2);
+            child->children.push_back(tmpNod3);
         } else if (value == "funct") {
             type = FUNCT;
             tmpNod1->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             *apStr = line[1];
             tmpNod1->value = apStr;
             tmpNod2->type = EXEC;
@@ -231,6 +235,12 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             type = DEC;
             MathNode* vrl = varparse(line[1]);
             tmpNod1->type = VARLIST;
+            tmpNod1->expression = vrl;
+            child->children.push_back(tmpNod1);
+        } else if (value == "sleep") {
+            type = SLEEP;
+            MathNode* vrl = mathparse(line[1]);
+            tmpNod1->type = EXPRESSION;
             tmpNod1->expression = vrl;
             child->children.push_back(tmpNod1);
         } else if (value == "elif") {
@@ -262,7 +272,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
         } else if (value == "print") {
             type = PRINT;
             tmpNod1->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             for(int i = 1; i < line.size(); i++){
                 if(i < line.size() - 1){
                     apStr->append(line[i]);
@@ -276,7 +286,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
         } else if (value == "printb") {
             type = PRINTB;
             tmpNod1->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             for(int i = 1; i < line.size(); i++){
                 if(i < line.size() - 1){
                     apStr->append(line[i]);
@@ -534,7 +544,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod1->type = MATIDENT;
             tmpNod1->value = getMatrixEntry(line[1]);
             tmpNod2->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             *apStr = line[2];
             tmpNod2->value = apStr;
             child->children.push_back(tmpNod1);
@@ -544,7 +554,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod1->type = MATIDENT;
             tmpNod1->value = getMatrixEntry(line[1]);
             tmpNod2->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             *apStr = line[2];
             tmpNod2->value = apStr;
             child->children.push_back(tmpNod1);
@@ -554,7 +564,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod1->type = LISTIDENT;
             tmpNod1->value = makeListEntry(line[1]);
             tmpNod2->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             *apStr = line[2];
             tmpNod2->value = apStr;
             child->children.push_back(tmpNod1);
@@ -564,7 +574,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
             tmpNod1->type = MATIDENT;
             tmpNod1->value = makeMatrixEntry(line[1]);
             tmpNod2->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             *apStr = line[2];
             tmpNod2->value = apStr;
             child->children.push_back(tmpNod1);
@@ -572,7 +582,7 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
         } else if (value == "call") {
             type = CALL;
             tmpNod1->type = STRING;
-            string* apStr = new string;
+            std::string* apStr = new std::string;
             *apStr = line[1];
             tmpNod1->value = apStr;
             child->children.push_back(tmpNod1);
@@ -597,43 +607,43 @@ Node* parseTree(const std::vector<std::vector<std::string> >& tokens, int startL
 
 //! Print MathTree Subtree Recursively
 void printMathTree(MathNode* root, int level) {
-    cout << " ";
+    std::cout << " ";
     switch (root->type) {
         case MathNodeType::Variable:
-            cout << "VAR <" << root->variable << ">" << endl;
+            std::cout << "VAR <" << root->variable << ">" << std::endl;
             break;
         case MathNodeType::Constant:
-            cout << "CONST <" << root->constant << ">" << endl;
+            std::cout << "CONST <" << root->constant << ">" << std::endl;
             break;
         case MathNodeType::Operator:
-            cout << "Operator <" << getOperator(root->opt) << ">" << endl;
+            //std::cout << "Operator <" << getOperator(root->opt) << ">" << std::endl;
             break;
         case MathNodeType::Array:
-            cout << "ARR <" << root->variable << ">" << endl;
+            std::cout << "ARR <" << root->variable << ">" << std::endl;
             break;
         case MathNodeType::Matrix:
-            cout << "MAT <" << root->variable << ">" << endl;
+            std::cout << "MAT <" << root->variable << ">" << std::endl;
             break;
     }
 
     int i = 0;
     if (root->left != nullptr) {
         for (int j = 0; j < level; j++) {
-            cout << "   ";
+            std::cout << "   ";
         }
         if(root->type == MathNodeType::Array || root->type == MathNodeType::Matrix){
-            cout << "`--";
+            std::cout << "`--";
         }else{
-            cout << "|--";
+            std::cout << "|--";
         }
         printMathTree(root->left, level + 1);
         i++;
     }
     if (root->right != nullptr) {
         for (int j = 0; j < level; j++) {
-            cout << "   ";
+            std::cout << "   ";
         }
-        cout << "`--";
+        std::cout << "`--";
         printMathTree(root->right, level + 1);
         i++;
     }
@@ -641,206 +651,212 @@ void printMathTree(MathNode* root, int level) {
 
 //! Print the Parsed Tree Recursively
 void printTree(Node* root, int level) {
-    cout << " ";
+    std::cout << " ";
     switch (root->type) {
         case SET:
-            cout << "SET" << endl;
+            std::cout << "SET" << std::endl;
             break;
         case CVAR:
-            cout << "CVAR" << endl;
+            std::cout << "CVAR" << std::endl;
             break;
         case MVAR:
-            cout << "MVAR" << endl;
+            std::cout << "MVAR" << std::endl;
             break;
         case LOOP:
-            cout << "LOOP" << endl;
+            std::cout << "LOOP" << std::endl;
+            break;
+        case AUTOLOOP:
+            std::cout << "AUTOLOOP" << std::endl;
             break;
         case WHILE:
-            cout << "WHILE" << endl;
+            std::cout << "WHILE" << std::endl;
             break;
         case INC:
-            cout << "INC" << endl;
+            std::cout << "INC" << std::endl;
             break;
         case DEC:
-            cout << "DEC" << endl;
+            std::cout << "DEC" << std::endl;
             break;
         case IF:
-            cout << "IF" << endl;
+            std::cout << "IF" << std::endl;
             break;
         case ELIF:
-            cout << "ELIF" << endl;
+            std::cout << "ELIF" << std::endl;
             break;
         case ELSE:
-            cout << "ELSE" << endl;
+            std::cout << "ELSE" << std::endl;
             break;
         case PRINT:
-            cout << "PRINT" << endl;
+            std::cout << "PRINT" << std::endl;
             break;
         case PRINTB:
-            cout << "PRINTB" << endl;
+            std::cout << "PRINTB" << std::endl;
             break;
         case PRINTV:
-            cout << "PRINTV" << endl;
+            std::cout << "PRINTV" << std::endl;
             break;
         case PRINTM:
-            cout << "PRINTM" << endl;
+            std::cout << "PRINTM" << std::endl;
             break;
         case NEWL:
-            cout << "NEWL" << endl;
+            std::cout << "NEWL" << std::endl;
             break;
         case VARIABLE:
-            cout << "VARIABLE <" << root->value << ">" << endl;
+            std::cout << "VARIABLE <" << root->value << ">" << std::endl;
             break;
         case VARIABLES:
-            cout << "VARIABLES <" << root->value << ">" << endl;
+            std::cout << "VARIABLES <" << root->value << ">" << std::endl;
             break;
         case VARLIST:
-            cout << "VARLIST" << endl;
+            std::cout << "VARLIST" << std::endl;
             for (int j = 0; j < level; j++) {
-                cout << "   ";
+                std::cout << "   ";
             }
-            cout << "`--";
+            std::cout << "`--";
             printMathTree(root->expression, level+1);
             break;
         case STRING:
-            cout << "STRING" << endl;
+            std::cout << "STRING" << std::endl;
             break;
         case ROOT:
-            cout << "ROOT" << endl;
+            std::cout << "ROOT" << std::endl;
             break;
         case END:
-            cout << "END" << endl;
+            std::cout << "END" << std::endl;
             break;
         case EXEC:
-            cout << "EXEC" << endl;
+            std::cout << "EXEC" << std::endl;
             break;
         case EXPRESSION:
-            cout << "EXPRESSION" << endl;
+            std::cout << "EXPRESSION" << std::endl;
             for (int j = 0; j < level; j++) {
-                cout << "   ";
+                std::cout << "   ";
             }
-            cout << "`--";
+            std::cout << "`--";
             printMathTree(root->expression, level+1);
             break;
         case CLIST:
-            cout << "CLIST" << endl;
+            std::cout << "CLIST" << std::endl;
             break;
         case CMAT:
-            cout << "CMAT" << endl;
+            std::cout << "CMAT" << std::endl;
             break;
         case LDEF:
-            cout << "LDEF" << endl;
+            std::cout << "LDEF" << std::endl;
             break;
         case MDEF:
-            cout << "MDEF" << endl;
+            std::cout << "MDEF" << std::endl;
             break;
         case READF:
-            cout << "READF" << endl;
+            std::cout << "READF" << std::endl;
             break;
         case WRITEF:
-            cout << "WRITEF" << endl;
+            std::cout << "WRITEF" << std::endl;
             break;
         case LISTIDENT:
-            cout << "LISTID" << endl;
+            std::cout << "LISTID" << std::endl;
             break;
         case MATIDENT:
-            cout << "MATID" << endl;
+            std::cout << "MATID" << std::endl;
             break;
         case INPUT:
-            cout << "INPUT" << endl;
+            std::cout << "INPUT" << std::endl;
             break;
         case CEIL:
-            cout << "CEIL" << endl;
+            std::cout << "CEIL" << std::endl;
             break;
         case FLOOR:
-            cout << "FLOOR" << endl;
+            std::cout << "FLOOR" << std::endl;
             break;
         case ROUND:
-            cout << "ROUND" << endl;
+            std::cout << "ROUND" << std::endl;
             break;
         case EXIT:
-            cout << "EXIT" << endl;
+            std::cout << "EXIT" << std::endl;
             break;
         case LEAVE:
-            cout << "LEAVE" << endl;
+            std::cout << "LEAVE" << std::endl;
             break;
         case SLOOP:
-            cout << "SLOOP" << endl;
+            std::cout << "SLOOP" << std::endl;
             break;
         case LOG:
-            cout << "LOG" << endl;
+            std::cout << "LOG" << std::endl;
             break;
         case EXP:
-            cout << "EXP" << endl;
+            std::cout << "EXP" << std::endl;
             break;
         case SIN:
-            cout << "SIN" << endl;
+            std::cout << "SIN" << std::endl;
             break;
         case COS:
-            cout << "COS" << endl;
+            std::cout << "COS" << std::endl;
             break;
         case TAN:
-            cout << "TAN" << endl;
+            std::cout << "TAN" << std::endl;
             break;
         case CSC:
-            cout << "SCS" << endl;
+            std::cout << "SCS" << std::endl;
             break;
         case SEC:
-            cout << "SEC" << endl;
+            std::cout << "SEC" << std::endl;
             break;
         case COT:
-            cout << "COT" << endl;
+            std::cout << "COT" << std::endl;
             break;
         case ATAN:
-            cout << "ATAN" << endl;
+            std::cout << "ATAN" << std::endl;
             break;
         case ACOS:
-            cout << "ACOS" << endl;
+            std::cout << "ACOS" << std::endl;
             break;
         case ASIN:
-            cout << "ASIN" << endl;
+            std::cout << "ASIN" << std::endl;
             break;
         case GETL:
-            cout << "GETL" << endl;
+            std::cout << "GETL" << std::endl;
             break;
         case GETDIM:
-            cout << "GETDIM" << endl;
+            std::cout << "GETDIM" << std::endl;
             break;
         case XROOT:
-            cout << "XROOT" << endl;
+            std::cout << "XROOT" << std::endl;
             break;
         case FUNCT:
-            cout << "FUNCTION" << endl;
+            std::cout << "FUNCTION" << std::endl;
             break;
         case CALL:
-            cout << "CALL" << endl;
+            std::cout << "CALL" << std::endl;
             break;
         case ABS:
-            cout << "ABS" << endl;
+            std::cout << "ABS" << std::endl;
             break;
         case POP:
-            cout << "POP" << endl;
+            std::cout << "POP" << std::endl;
             break;
         case PUSH:
-            cout << "PUSH" << endl;
+            std::cout << "PUSH" << std::endl;
             break;
         case CHSL:
-            cout << "CHSL" << endl;
+            std::cout << "CHSL" << std::endl;
             break;
         case RANDOM:
-            cout << "RANDOM" << endl;
+            std::cout << "RANDOM" << std::endl;
+            break;
+        case SLEEP:
+            std::cout << "SLEEP" << std::endl;
             break;
     }
 
     int i = 0;
     for (auto& child : root->children) {
         for (int j = 0; j < level; j++) {
-            cout << "   ";
+            std::cout << "   ";
         }
         if (i == root->children.size() - 1) {
-            cout << "`--";
+            std::cout << "`--";
         } else {
-            cout << "|--";
+            std::cout << "|--";
         }
         printTree(child, level + 1);
         i++;
@@ -849,9 +865,7 @@ void printTree(Node* root, int level) {
 
 //! Print Information and Initiate Output of Tree
 void printTreeRoot(Node* root){
-    cout << "SquareBracket Parser (Version 2.2.2) -- © 2023 Patrick De Smet" << endl << endl;
+    std::cout << "SquareBracket Parser (Version 2.2.2) -- © 2023 Patrick De Smet" << std::endl << std::endl;
     printTree(root, 0);
-    cout << endl;
+    std::cout << std::endl;
 }
-
-#endif //SQBRA_PARSER_H
