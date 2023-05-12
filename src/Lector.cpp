@@ -192,7 +192,7 @@ void checkSyntax(std::vector<std::vector<std::string> > &tokens, bool pl){
     int lcount = 1;
     error = false;
     if(pl) {
-        std::cout << "SquareBracket Syntax Check (Version 2.2.2 Rapid Red Panda) *******" << std::endl << std::endl;
+        std::cout << "SquareBracket Syntax Check (Version 2.2.3 Rapid Red Panda) *******" << std::endl << std::endl;
     }
     for(auto &line : tokens){
         std::string token = line[0];
