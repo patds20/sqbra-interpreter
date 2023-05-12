@@ -51,6 +51,7 @@
  <ul>
     <li><b> <span style="color:blue">loop</span> n do [ ... ]</b>: loop n times and execute the code in the indented block. The variable n is decremented each time.</li>
   <li><b><span style="color:blue">sloop</span> n do [ ... ]</b>: same as loop, but changes to the loop variable inside the code block do not affect the loop.</li>
+  <li><b> <span style="color:blue">autoloop</span> n expr do [ ... ]</b>: assign variable n the value of expression expr at the beginning and then loop n times and execute the code in the indented block. The variable n is decremented each time.</li>
   <li><b><span style="color:blue">if</span> (statement) [ ... ]</b>: execute the code in the indented block if the statement is true. The statement can use the following operators: = (equal), != (not equal), >= (greater or equal), <= (smaller or equal), > (greater), < (smaller). Example: if (x = 0) [set y 1].</li>
    <li><b><span style="color:blue">elif</span> (statement) [ ... ]</b>: execute the code in the indented block if the previous if statement is false and the current statement is true. The statement can use the following operators: = (equal), != (not equal), >= (greater or equal), <= (smaller or equal), > (greater), < (smaller).</li>
     <li><b><span style="color:blue">else</span> [ ... ]</b>: execute the code in the indented block if the previous if statement is false.</li>
