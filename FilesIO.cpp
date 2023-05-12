@@ -1,41 +1,35 @@
-#pragma once
-#ifndef SQBRA_FILESIO_H
-#define SQBRA_FILESIO_H
-
 /*
  *  FILESIO.CPP
  *  This file contains commands for reading and writing files.
  *  Copyright (c) 2023, Patrick De Smet
  */
 
-#include <string>
-#include <iostream>
-#include <fstream>
+#include "Recurser.h"
 
 //! Extract [" and "] from strings
-inline string extract_string(const string& input) {
+std::string extract_string(const std::string& input) {
     std::size_t start_pos = input.find("[\"");
     std::size_t end_pos = input.find("\"]");
     if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
-        cerr << "Error: <" << input << "> string is not in the correct format";
+        std::cerr << "Error: <" << input << "> string is not in the correct format" << std::endl;
         exit(0);
     }
     return input.substr(start_pos + 2, end_pos - start_pos - 2);
 }
 
 //! Extract outer [ and ] from strings containing lists or matrices
-inline string extract_list_string(const string& input) {
+std::string extract_list_string(const std::string& input) {
     std::size_t start_pos = input.find('[');
     std::size_t end_pos = input.find(']');
     if (start_pos == std::string::npos || end_pos == std::string::npos || start_pos >= end_pos) {
-        cerr << "Error: <" << input << "> list is not in the correct format";
+        std::cerr << "Error: <" << input << "> list is not in the correct format" << std::endl;
         exit(0);
     }
     return input.substr(start_pos + 1, end_pos - start_pos - 1);
 }
 
 //! Read and input csv files as matrices
-inline void read_csv(const std::string& filename, std::vector<std::vector<long double>*>* output) {
+void read_csv(const std::string& filename, std::vector<std::vector<long double>*>* output) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << filename << std::endl;
@@ -60,7 +54,7 @@ inline void read_csv(const std::string& filename, std::vector<std::vector<long d
 }
 
 //! Write matrices to csv files
-inline void write_csv(const std::string& filename, std::vector<std::vector<long double>*>* numbers) {
+void write_csv(const std::string& filename, std::vector<std::vector<long double>*>* numbers) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file: " << filename << std::endl;
@@ -86,7 +80,7 @@ inline void write_csv(const std::string& filename, std::vector<std::vector<long 
 }
 
 //! Parse a string [0.32, 0.435, 3.141] to a list
-inline void parse_numbers(const std::string& input, std::vector<long double>* output) {
+void parse_numbers(const std::string& input, std::vector<long double>* output) {
     std::istringstream ss(input);
     std::string token;
     while (std::getline(ss, token, ',')) {
@@ -100,8 +94,7 @@ inline void parse_numbers(const std::string& input, std::vector<long double>* ou
 }
 
 //! Parse a string [[1,2,3],[4,5,6],[7,8,9]] to a matrix
-inline void parse_matrix(string& matrix_string, vector<vector<long double>* >* matrix)
-{
+void parse_matrix(std::string& matrix_string, std::vector<std::vector<long double>* >* matrix){
     // Remove the outermost brackets from the matrix string
     std::string stripped_string = matrix_string.substr(1, matrix_string.length() - 2);
 
@@ -132,5 +125,3 @@ inline void parse_matrix(string& matrix_string, vector<vector<long double>* >* m
         matrix->push_back(row);
     }
 }
-
-#endif //SQBRA_FILESIO_H
