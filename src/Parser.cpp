@@ -616,7 +616,7 @@ void printMathTree(MathNode* root, int level) {
             std::cout << "CONST <" << root->constant << ">" << std::endl;
             break;
         case MathNodeType::Operator:
-            //std::cout << "Operator <" << getOperator(root->opt) << ">" << std::endl;
+            std::cout << "Operator <" << getOperator(root->opt) << ">" << std::endl;
             break;
         case MathNodeType::Array:
             std::cout << "ARR <" << root->variable << ">" << std::endl;
