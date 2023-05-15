@@ -51,7 +51,7 @@ struct MathTypeReturn {
 
 long double calculateExpression(MathNode* root);
 
-inline std::string getOperator(MathOperatorType type);
+std::string getOperator(MathOperatorType type);
 
 MathNode* mathparse(const std::string& expr);
 
